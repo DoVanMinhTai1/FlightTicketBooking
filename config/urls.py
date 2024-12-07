@@ -21,6 +21,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('',include('frontend.urls')),
     path('payment/', include("payment.urls"),name="payment"),
-    path('account/', include('accounts.urls'))
-    
+    path('account/', include('accounts.urls')),
+    path('flight/', include('flights.urls') , name="flight")
+
 ]
