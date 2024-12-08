@@ -15,6 +15,8 @@ def login_view(request):
         password = request.POST['password']
         user = authenticate(request, username=username, password=password)
         if user is not None:
+            user.last_login = datetime.now(timezone.utc)
+            user.save()
             login(request, user)
             return redirect('home')
         else:
