@@ -3,6 +3,7 @@
 from django.db import migrations, models
 
 
+
 class Migration(migrations.Migration):
 
     initial = True
@@ -21,6 +22,20 @@ class Migration(migrations.Migration):
                 ('customer_number', models.CharField(max_length=250, null=True)),
                 ('payment_status', models.CharField(choices=[(0, 'paid'), (1, 'pending'), (2, 'failed')], default='pending', max_length=200, null=True)),
                 ('paystack_payment_reference', models.CharField(blank=True, default='', max_length=100)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Payment1',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('fare' , models.DecimalField(decimal_places=2, max_digits=18)),
+                ('cardNumber' ,models.CharField(max_length=20, null=True)),
+                ('cardHolderName' , models.CharField(max_length=150, null=True)),
+                ('expMonth' , models.IntegerField(null=True)),
+                ('expYear' , models.IntegerField(null=True)),
+                ('cvv' ,  models.IntegerField(null=True)),
+                ('booking_id' , models.ForeignKey('booking.Booking', on_delete=models.CASCADE,null=True)),
+                ('status' , models.CharField(choices=[(0, 'paid'), (1, 'pending'), (2, 'failed')],max_length=20, null=True)),
             ],
         ),
     ]

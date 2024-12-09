@@ -214,12 +214,12 @@ def book(request):
             return HttpResponse(e)
 
         if f2:  ## 
-            return render(request, "flight/payment.html", { ## 
+            return render(request, "payment.html", { ##
                 'fare': fare + FEE,  ## 
                 'ticket': ticket1.id,  ## 
                 'ticket2': ticket2.id  ## 
             })  ## 
-        return render(request, "flight/payment.html", {
+        return render(request, "payment.html", {
             'fare': fare + FEE,
             'ticket': ticket1.id
         })

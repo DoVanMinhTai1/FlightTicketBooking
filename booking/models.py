@@ -1,8 +1,6 @@
 from django.db import models
 from flights.models import Flight
-
-from payment.models import Payment
-from accounts.models import User
+from django.contrib.auth.models import User
 # Create your models here.
 class Booking(models.Model):
     """Flight booking model"""
@@ -15,7 +13,7 @@ class Booking(models.Model):
     flight_id = models.ForeignKey(Flight, on_delete=models.CASCADE,null=True)
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
     seat_number = models.IntegerField(default=1)
-    payment_id = models.ForeignKey(Payment, on_delete=models.CASCADE, null=True)
+    #payment_id = models.ForeignKey(Payment, on_delete=models.CASCADE, null=True)
     is_booked = models.BooleanField(default=False)
     type_of_seats = models.CharField(max_length=200, null=True, choices=SEAT_TYPES)
 
