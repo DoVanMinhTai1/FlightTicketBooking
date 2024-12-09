@@ -23,5 +23,5 @@ urlpatterns = [
     path('payment/', include("payment.urls"),name="payment"),
     path('accounts/', include('accounts.urls')),
     path('flight/', include('flights.urls') , name="flight")
-
+    
 ]

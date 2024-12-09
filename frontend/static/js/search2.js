@@ -19,31 +19,31 @@ document.addEventListener("DOMContentLoaded", () => {
 function flight_duration() {
     document.querySelectorAll(".flight-stops .tooltiptext").forEach(element => {
         let time = element.dataset.value.split(":");
-        element.innerText = time[0]+"h "+time[1]+"m";
+        element.innerText = time[0] + "h " + time[1] + "m";
     });
 }
 
 function flight_duration2() {
     document.querySelectorAll(".flight-stops2 .tooltiptext").forEach(element => {
         let time = element.dataset.value.split(":");
-        element.innerText = time[0]+"h "+time[1]+"m";
+        element.innerText = time[0] + "h " + time[1] + "m";
     });
 }
 
 
-function filter(element=null) {
+function filter(element = null) {
     //reset_filter();
     filter_price();
     if (element) {
         inactive(element);
-        active(element);   
+        active(element);
     }
     //let type = element.dataset.type;
     let start = null;
     let end = null;
     let flights = null;
     if (true) {
-        if(document.querySelector(".departure-time-slot-group .square-box.active")) {
+        if (document.querySelector(".departure-time-slot-group .square-box.active")) {
             start = document.querySelector(".departure-time-slot-group .square-box.active").dataset.start;
             end = document.querySelector(".departure-time-slot-group .square-box.active").dataset.end;
             flights = document.querySelectorAll("#flights_div .each-flight-div-box.show");
@@ -53,7 +53,7 @@ function filter(element=null) {
 
     flights = null;
     if (true) {
-        if(document.querySelector(".arrival-time-slot-group .square-box.active")) {
+        if (document.querySelector(".arrival-time-slot-group .square-box.active")) {
             start = document.querySelector(".arrival-time-slot-group .square-box.active").dataset.start;
             end = document.querySelector(".arrival-time-slot-group .square-box.active").dataset.end;
             flights = document.querySelectorAll("#flights_div .each-flight-div-box.show");
@@ -64,19 +64,19 @@ function filter(element=null) {
 }
 
 
-function filter2(element=null) {
+function filter2(element = null) {
     //reset_filter2();
     filter_price2();
     if (element) {
         inactive2(element);
-        active2(element);   
+        active2(element);
     }
     //let type = element.dataset.type;
     let start = null;
     let end = null;
     let flights = null;
     if (true) {
-        if(document.querySelector(".departure-time-slot-group2 .square-box.active")) {
+        if (document.querySelector(".departure-time-slot-group2 .square-box.active")) {
             start = document.querySelector(".departure-time-slot-group2 .square-box.active").dataset.start;
             end = document.querySelector(".departure-time-slot-group2 .square-box.active").dataset.end;
             flights = document.querySelectorAll("#flights_div2 .each-flight-div-box.show");
@@ -86,7 +86,7 @@ function filter2(element=null) {
 
     flights = null;
     if (true) {
-        if(document.querySelector(".arrival-time-slot-group2 .square-box.active")) {
+        if (document.querySelector(".arrival-time-slot-group2 .square-box.active")) {
             start = document.querySelector(".arrival-time-slot-group2 .square-box.active").dataset.start;
             end = document.querySelector(".arrival-time-slot-group2 .square-box.active").dataset.end;
             flights = document.querySelectorAll("#flights_div2 .each-flight-div-box.show");
@@ -101,7 +101,7 @@ function arrival_slot(flights, start, end) {
     if (flights) {
         for (let i = 0; i < flights.length; i++) {
             time = flights[i].querySelector(".flight-destination-time .flight-time h5").innerText.split(":");
-            if((parseInt(time[0]) >= parseInt(start)) && (parseInt(time[0]) < parseInt(end))) {
+            if ((parseInt(time[0]) >= parseInt(start)) && (parseInt(time[0]) < parseInt(end))) {
                 //flights[i].style.display = 'block';
                 flights[i].classList.add('show');
                 flights[i].classList.remove('hide');
@@ -118,7 +118,7 @@ function departure_slot(flights, start, end) {
     if (flights) {
         for (let i = 0; i < flights.length; i++) {
             time = flights[i].querySelector(".flight-origin-time .flight-time h5").innerText.split(":");
-            if((parseInt(time[0]) >= parseInt(start)) && (parseInt(time[0]) < parseInt(end))) {
+            if ((parseInt(time[0]) >= parseInt(start)) && (parseInt(time[0]) < parseInt(end))) {
                 //flights[i].style.display = 'block';
                 flights[i].classList.add('show');
                 flights[i].classList.remove('hide');
@@ -137,7 +137,7 @@ function arrival_slot2(flights, start, end) {
     if (flights) {
         for (let i = 0; i < flights.length; i++) {
             time = flights[i].querySelector(".flight-destination-time2 .flight-time h5").innerText.split(":");
-            if((parseInt(time[0]) >= parseInt(start)) && (parseInt(time[0]) < parseInt(end))) {
+            if ((parseInt(time[0]) >= parseInt(start)) && (parseInt(time[0]) < parseInt(end))) {
                 //flights[i].style.display = 'block';
                 flights[i].classList.add('show');
                 flights[i].classList.remove('hide');
@@ -154,7 +154,7 @@ function departure_slot2(flights, start, end) {
     if (flights) {
         for (let i = 0; i < flights.length; i++) {
             time = flights[i].querySelector(".flight-origin-time .flight-time h5").innerText.split(":");
-            if((parseInt(time[0]) >= parseInt(start)) && (parseInt(time[0]) < parseInt(end))) {
+            if ((parseInt(time[0]) >= parseInt(start)) && (parseInt(time[0]) < parseInt(end))) {
                 //flights[i].style.display = 'block';
                 flights[i].classList.add('show');
                 flights[i].classList.remove('hide');
@@ -181,7 +181,7 @@ function timeslot(slot) {
     if (type === 'departure') {
         for (let i = 0; i < flights.length; i++) {
             time = flights[i].querySelector(".flight-origin-time .flight-time h5").innerText.split(":");
-            if((parseInt(time[0]) >= parseInt(start)) && (parseInt(time[0]) < parseInt(end))) {
+            if ((parseInt(time[0]) >= parseInt(start)) && (parseInt(time[0]) < parseInt(end))) {
                 flights[i].style.display = 'block';
             }
             else {
@@ -192,7 +192,7 @@ function timeslot(slot) {
     if (type === 'arrival') {
         for (let i = 0; i < flights.length; i++) {
             time = flights[i].querySelector(".flight-destination-time .flight-time h5").innerText.split(":");
-            if((parseInt(time[0]) >= parseInt(start)) && (parseInt(time[0]) < parseInt(end))) {
+            if ((parseInt(time[0]) >= parseInt(start)) && (parseInt(time[0]) < parseInt(end))) {
                 flights[i].style.display = 'block';
             }
             else {
@@ -206,7 +206,7 @@ function timeslot(slot) {
 function active(slot) {
     slot.classList.add('active');
     slot.querySelectorAll('img').forEach(image => {
-        if(image.dataset.statefor === 'inactive') {
+        if (image.dataset.statefor === 'inactive') {
             image.style.display = 'none';
         }
         else {
@@ -219,7 +219,7 @@ function inactive(slot) {
         slot.parentElement.querySelectorAll('.active').forEach(element => {
             element.classList.remove('active');
             element.querySelectorAll('img').forEach(image => {
-                if(image.dataset.statefor === 'inactive') {
+                if (image.dataset.statefor === 'inactive') {
                     image.style.display = 'block';
                 }
                 else {
@@ -235,7 +235,7 @@ function inactive(slot) {
 function active2(slot) {
     slot.classList.add('active');
     slot.querySelectorAll('img').forEach(image => {
-        if(image.dataset.statefor === 'inactive') {
+        if (image.dataset.statefor === 'inactive') {
             image.style.display = 'none';
         }
         else {
@@ -248,7 +248,7 @@ function inactive2(slot) {
         slot.parentElement.querySelectorAll('.active').forEach(element => {
             element.classList.remove('active');
             element.querySelectorAll('img').forEach(image => {
-                if(image.dataset.statefor === 'inactive') {
+                if (image.dataset.statefor === 'inactive') {
                     image.style.display = 'block';
                 }
                 else {
@@ -279,7 +279,7 @@ function filter_price() {
             flights[i].classList.remove('hide');
         }
     }
-    
+
 }
 
 function reset_filter() {
@@ -292,9 +292,9 @@ function reset_filter() {
 
     let flights = document.querySelector("#flights_div").querySelectorAll(".each-flight-div-box");
     for (let i = 0; i < flights.length; i++) {
-            //flights[i].style.display = 'block';
-            flights[i].classList.add('show');
-            flights[i].classList.remove('hide');
+        //flights[i].style.display = 'block';
+        flights[i].classList.add('show');
+        flights[i].classList.remove('hide');
     }
 }
 
@@ -323,7 +323,7 @@ function filter_price2() {
             flights[i].classList.remove('hide');
         }
     }
-    
+
 }
 
 function reset_filter2() {
@@ -336,9 +336,9 @@ function reset_filter2() {
 
     let flights = document.querySelector("#flights_div2").querySelectorAll(".each-flight-div-box");
     for (let i = 0; i < flights.length; i++) {
-            //flights[i].style.display = 'block';
-            flights[i].classList.add('show');
-            flights[i].classList.remove('hide');
+        //flights[i].style.display = 'block';
+        flights[i].classList.add('show');
+        flights[i].classList.remove('hide');
     }
 }
 
@@ -349,13 +349,13 @@ function reset_filter2() {
 
 
 function trip_type_flight(element) {
-    if(element.dataset.trip_type === '1') {
+    if (element.dataset.trip_type === '1') {
         document.querySelector(".query-result-div-2").style.display = 'none';
         document.querySelector(".query-result-div").style.display = 'block';
         //element.classList.add('active-div');
         //document.querySelector('#flight2-btn-div').classList.remove('active-div');
     }
-    else if(element.dataset.trip_type === '2') {
+    else if (element.dataset.trip_type === '2') {
         document.querySelector(".query-result-div").style.display = 'none';
         document.querySelector(".query-result-div-2").style.display = 'block';
         //element.classList.add('active-div');
@@ -418,7 +418,7 @@ function media_click(element) {
 
 function initial_click() {
     if (window.matchMedia("(max-width: 376px)").matches) {
-        if (document.querySelector('#trip-identifier').value === '2'){
+        if (document.querySelector('#trip-identifier').value === '2') {
             document.querySelector(".query-result-div .each-flight-div").classList.add('blue');
             document.querySelector(".query-result-div-2 .each-flight-div").classList.add('blue');
         }
@@ -432,10 +432,10 @@ function close_filter(element) {
 
 
 function show_filter() {
-    if(Boolean(document.querySelector(".query-result-div-2"))) {
+    if (Boolean(document.querySelector(".query-result-div-2"))) {
         let r1 = document.querySelector(".query-result-div");
         let r2 = document.querySelector(".query-result-div-2");
-        if(r2.style.display === 'none') {
+        if (r2.style.display === 'none') {
             r1.querySelector(".filter-div").style.display = 'block';
             r2.querySelector(".filter-div").style.display = 'none';
         }
@@ -469,20 +469,20 @@ function tab_change() {
     var activeItem = tabs.find('.active-div');
     var activeWidth = activeItem.innerWidth();
     $(".selector").css({
-    "left": activeItem.position.left + "px", 
-    "width": activeWidth + "px"
-    });
-
-    $(".tabs").on("click","a",function(e){
-    e.preventDefault();
-    $('.tabs a').removeClass("active-div");
-    $(this).addClass('active-div');
-    var activeWidth = $(this).innerWidth();
-    var itemPos = $(this).position();
-    $(".selector").css({
-        "left":itemPos.left + "px", 
+        "left": activeItem.position.left + "px",
         "width": activeWidth + "px"
     });
-    setTimeout(() => {trip_type_flight(e.target);},400);
+
+    $(".tabs").on("click", "a", function (e) {
+        e.preventDefault();
+        $('.tabs a').removeClass("active-div");
+        $(this).addClass('active-div');
+        var activeWidth = $(this).innerWidth();
+        var itemPos = $(this).position();
+        $(".selector").css({
+            "left": itemPos.left + "px",
+            "width": activeWidth + "px"
+        });
+        setTimeout(() => { trip_type_flight(e.target); }, 400);
     });
 }
