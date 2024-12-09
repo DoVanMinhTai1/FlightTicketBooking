@@ -1,60 +1,48 @@
+from datetime import datetime, timezone
+from django.core.exceptions import *
+from django.contrib.auth.password_validation import validate_password
+from django.db import IntegrityError
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login,logout
-
-
+from frontend import template
 # Create your views here.
 def login_view(request):
     if request.method == 'POST':
-        username = request.POST['name']
+        username = request.POST['username']
         password = request.POST['password']
         user = authenticate(request, username=username, password=password)
         if user is not None:
+            user.last_login = datetime.now(timezone.utc)
+            user.save()
             login(request, user)
-            messages.success(request, 'You are now logged in')
             return redirect('home')
         else:
-            messages.error(request, 'Invalid username or password')
-            return redirect('login')
-    return render(request, 'accounts/login.html')
-def forgotPass(request):
-    return render(request, 'accounts/forgot-pass.html')
+            messages.warning(request, 'Invalid username or password')
+    return render(request, 'login.html')
+
 def register(request):
     if request.method == 'POST':
-        username = request.POST['name']
+        first_name = request.POST['firstname']
+        last_name = request.POST['lastname']
+        username = request.POST['username']
         password = request.POST['password']
         email = request.POST['email']
-        rePassword = request.POST['re_password']
-        accept = request.POST['agree-term']
-        if password != rePassword:
-            messages.error(request, 'Passwords không trùng')
-            return redirect('register')
-        if accept == 'no':
-            messages.error(request, 'Bạn phải chấp nhận điều khoảng')
-            return redirect('register')
-        user = User.objects.create_user(username=username, email=email, password=password)
-        user.save()
-        messages.success(request, 'Account created successfully')
-        return redirect('login')
-    return render(request, 'accounts/register.html')
-def resetPass(request):
-    user = request.user
-    if request.method == 'POST':
-        password = request.POST['password']
-        password2 = request.POST['re-password']
-        if password != password2:
-            messages.error(request,'Mật khẩu xác nhận không trùng với mật khẩu mới')
-            return redirect('resetPass')
-        user.set_password(password)
-        user.save()
-        messages.success(request, 'Đổi thành công')
-        return redirect('login')
-    return render(request, 'accounts/reset-pass.html')
+        try:
+            validate_password(password)
+            user = User.objects.create_user(username=username, email=email, password=password,first_name=first_name, last_name=last_name,date_joined=datetime.now(timezone.utc))
+            user.save()
+            return redirect('login')
+        except ValidationError:
+            messages.warning(request,'The password must contain at least 8 characters.')
+        except IntegrityError:
+            messages.warning(request,'Username already taken')
+    return render(request, 'register.html')
+
 def home_view(request):
-    user = request.user
-    return render(request,'accounts/index.html',{'user':user})
+    return render(request,'index.html')
 def logout_view(request):
     logout(request)
     return redirect('login')

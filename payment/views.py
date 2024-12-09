@@ -1,4 +1,4 @@
 from django.shortcuts import render
-
-def index(request):
-    return render(request,'index.html')
+from frontend import template
+def payment_view(request):
+    return render(request,'payment.html')
