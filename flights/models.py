@@ -1,12 +1,13 @@
 from django.db import models
 from datetime import datetime
 class Place(models.Model):
-    """Place model for storing origin and destination places."""
-    code = models.CharField(max_length=10, unique=True)
-    name = models.CharField(max_length=150)
+    city = models.CharField(max_length=64,null=True)
+    airport = models.CharField(max_length=64,null=True)
+    code = models.CharField(max_length=3,null=True)
+    country = models.CharField(max_length=64,null=True)
 
     def __str__(self):
-        return self.name
+        return f"{self.city}, {self.country} ({self.code})"
 
 
 class Week(models.Model):
@@ -19,24 +20,20 @@ class Week(models.Model):
 
 
 class Flight(models.Model):
-    """Flight model for storing flight details."""
     
-    flight_name = models.CharField(max_length=150, null=False)
-    origin = models.ForeignKey(Place, related_name='departure_flights', on_delete=models.CASCADE, default=None)
-    destination = models.ForeignKey(Place, related_name='arrival_flights', on_delete=models.CASCADE,null=True)
-    
-    economy_fare = models.DecimalField(decimal_places=2, max_digits=100, null=True, blank=True)
-    business_fare = models.DecimalField(decimal_places=2, max_digits=100, null=True, blank=True)
-    first_fare = models.DecimalField(decimal_places=2, max_digits=100, null=True, blank=True)
-    
-    seats_available = models.IntegerField()
-    plane_name = models.CharField(max_length=150, null=False)
-    time_of_departure = models.DateTimeField()
-    time_of_arrival = models.DateTimeField()
-    depart_day = models.ForeignKey(Week, related_name='flights', on_delete=models.CASCADE,null=True)  # Link to Week for weekday
-    is_approved = models.BooleanField(default=False)
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now_add=True)
+    origin = models.ForeignKey(Place, on_delete=models.CASCADE, related_name="departures",null=True)
+    destination = models.ForeignKey(Place, on_delete=models.CASCADE, related_name="arrivals",null=True)
+    depart_time = models.TimeField(auto_now=False, auto_now_add=False,null=True)
+    depart_day = models.ManyToManyField(Week, related_name="flights_of_the_day")
+    duration = models.DurationField(null=True)
+    arrival_time = models.TimeField(auto_now=False, auto_now_add=False,null=True)
+    plane = models.CharField(max_length=24,null=True)
+    airline = models.CharField(max_length=64,null=True)
+    economy_fare = models.FloatField(null=True)
+    business_fare = models.FloatField(null=True)
+    first_fare = models.FloatField(null=True)
 
     def __str__(self):
-        return f"{self.flight_name} from {self.origin} to {self.destination}"
+        return f"{self.id}: {self.origin} to {self.destination}"
+
+   
