@@ -3,5 +3,6 @@ from payment import views
 
 urlpatterns = [
     path('checkout/',views.payment_view,name='checkout'),
-    path('process/',views.payment_process,name='process'),
+    path('book/', views.book, name='book'),
+    path('checkout/api/<str:ref>', views.ticket_data, name="ticketdata"),
 ]

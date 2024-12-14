@@ -2,11 +2,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let ref1 = document.querySelector(".ref1").value;
     let ref2 = document.querySelector(".ref2").value;
     setTimeout(() => {
-        fetch(`/flight/ticket/api/${ref1}`)
+        fetch(`/payment/checkout/api/${ref1}`)
         .then(response => response.json())
         .then(ticket1 => {
             if(ref2) {
-                fetch(`/flight/ticket/api/${ref2}`)
+                fetch(`/payment/checkout/api/${ref2}`)
                 .then(response => response.json())
                 .then(ticket2 => {
                     if (ticket2.status === 'CONFIRMED') {

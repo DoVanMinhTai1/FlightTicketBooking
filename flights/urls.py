@@ -21,7 +21,4 @@ from django.conf.urls.static import static
 urlpatterns = [
     path("search/",views.flight,name="flight-search"),
     path("review/",views.review,name="review"),
-    path("flight/ticket/book", views.book, name="book"),
-
-
 ]
