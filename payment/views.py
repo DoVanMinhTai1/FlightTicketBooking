@@ -56,9 +56,9 @@ def payment_view(request):
                             'ticket2': ticket2_id,
                             'fare' : fare,}
                     payment.ticket_id2 = ticket2
-                    # Kiểm tra số của thẻ có dưới 16 chữ số hay không. Không thì báo lỗi
-                if len(cardNumber) < 16:
-                    messages.warning(request, 'Card number must be at least 16 digits')
+                    # Kiểm tra số của thẻ có dưới 12 chữ số hay không. Không thì báo lỗi
+                if len(cardNumber) < 12:
+                    messages.warning(request, 'Card number must be at least 12 digits')
                     return render(request, 'payment.html', tics)
                         # Kiểm tra xem thời gian hiệu lực của thẻ
                 if expYear < current_year or (expYear == current_year and expMonth < current_month):
