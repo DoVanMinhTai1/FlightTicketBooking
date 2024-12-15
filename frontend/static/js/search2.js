@@ -453,15 +453,6 @@ function show_filter() {
 
 
 
-
-
-
-
-
-
-
-
-
 function tab_change() {
     var tabs = $('.tabs');
     var selector = $('.tabs').find('a').length;

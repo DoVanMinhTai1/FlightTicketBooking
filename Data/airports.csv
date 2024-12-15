@@ -51,7 +51,7 @@ Tokyo,Narita International Airport,NRT,Japan
 Moscow,Sheremetyevo International Airport,SVO,Russia
 Chongqing,Chongqing Jiangbei International Airport,CKG,China
 Bangkok,Don Mueang International Airport,DMK,Thailand
-Minneapolis,Minneapolis-St Paul International/Wold-Chamberlain Airport,MSP,United States
+Minneapolis,St Paul International Airport,MSP,United States
 Sao Paulo,São Paulo–Guarulhos International Airport,GRU,Brazil
 Boston,Logan International Airport,BOS,United States
 Ho Chi Minh City,Tan Son Nhat International Airport,SGN,Vietnam
@@ -77,7 +77,7 @@ Manchester,Manchester Airport,MAN,United Kingdom
 Oslo,"Oslo Airport, Gardermoen",OSL,Norway
 Lisbon,Lisbon Portela Airport,LIS,Portugal
 Stockholm,Stockholm Arlanda Airport,ARN,Sweden
-Baltimore,Baltimore/Washington International Thurgood Marshall Airport,BWI,United States
+Baltimore,Washington International Thurgood Marshall Airport,BWI,United States
 Antalya,Antalya Airport,AYT,Turkey
 London,London Stansted Airport,STN,United Kingdom
 Nanjing,Nanjing Lukou International Airport,NKG,China
@@ -102,27 +102,27 @@ Wuhan,Wuhan Tianhe International Airport,WUH,China
 Chennai,Chennai International Airport,MAA,India
 Kochi,Cochin International Airport,COK,India
 Hyderabad,Rajiv Gandhi International Airport,HYD,India
-Thiruvananthapuram,Trivandrum International Airport,TRV,India
 Kolkata,Netaji Subhash Chandra Bose International Airport,CCU,India
-Ahmedabad,Sardar Vallabhbhai Patel International Airport,AMD,India
+Thiruvananthapuram,Thiruvananthapuram International Airport,TRV,India
+Vasco da Gama,Dabolim Airport,GOI,India
+Mopa,Manohar International Airport,GOX,India
+Ahmedabad,Sardar Vallabh Bhai Patel International Airport,AMD,India
 Calicut,Calicut International Airport,CCJ,India
 Jaipur,Jaipur International Airport,JAI,India
-Vasco da Gama,Dabolim Airport,GOI,India
 Lucknow,Chaudhary Charan Singh International Airport,LKO,India
 Coimbatore,Coimbatore International Airport,CJB,India
-Tiruchirappally,Tiruchirapally Civil Airport Airport,TRZ,India
-Pune,Pune Airport,PNQ,India
+Tiruchirappalli,Tiruchirappalli International Airport,TRZ,India
+Pune,Pune Airport / Lohagaon Air Force Station,PNQ,India
 Siliguri,Bagdogra Airport,IXB,India
 Guwahati,Lokpriya Gopinath Bordoloi International Airport,GAU,India
-Visakhapatnam,Vishakhapatnam Airport,VTZ,India
+Visakhapatnam,Visakhapatnam Airport,VTZ,India
 Amritsar,Sri Guru Ram Dass Jee International Airport,ATQ,India
-Madurai,Madurai Airport,IXM,India
-Naqpur,Dr. Babasaheb Ambedkar International Airport,NAG,India
-Chandigarh,Chandigarh Airport,IXC,India
+Nagpur,Dr. Babasaheb Ambedkar International Airport,NAG,India
+Chandigarh,Chandigarh International Airport,IXC,India
 Jammu,Jammu Airport,IXJ,India
-Srinagar,Sheikh ul Alam Airport,SXR,India
-Mangalore,Mangalore International Airport,IXE,India
-Port Blair,Vir Savarkar International Airport,IXZ,India
+Srinagar,Sheikh ul Alam International Airport,SXR,India
+Madurai,Madurai Airport,IXM,India
 Indore,Devi Ahilyabai Holkar Airport,IDR,India
-Agartala,Agartala Airport,IXA,India
-Patna,Lok Nayak Jayaprakash Airport,PAT,India
+Agartala,Agartala - Maharaja Bir Bikram Airport,IXA,India
+Patna,Jay Prakash Narayan Airport,PAT,India
+Ranchi,Birsa Munda Airport,IXR,India

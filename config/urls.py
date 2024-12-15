@@ -16,12 +16,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from config.admin import custom_admin_site
 
+# admin.site.site_header()
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('admin/', custom_admin_site.urls),
     path('',include('frontend.urls')),
     path('payment/', include("payment.urls"),name="payment"),
-    path('accounts/', include('accounts.urls')),
+    path('accounts/', include('accounts.urls'),name="accounts"),
     path('flight/', include('flights.urls') , name="flight")
     
 ]

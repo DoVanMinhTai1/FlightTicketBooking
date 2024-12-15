@@ -1,0 +1,21 @@
+{% extends "admin/change_list.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- <h1 class="mb-3">Customized Change List</h1> -->
+    <div class="card">
+        <div class="card-body">
+            {{ block.super }}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+<script>
+    // Ensure the details element is closed on page load
+    const details = document.getElementById('airline-details');
+    if (details.hasAttribute('open')) {
+        details.removeAttribute('open');
+    }
+</script>
