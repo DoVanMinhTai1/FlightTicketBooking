@@ -1,0 +1,21 @@
+body {
+    background-color: #343a40;
+    /* Light Bootstrap background */
+}
+
+.navbar {
+    background-color: #343a40;
+    /* Dark Bootstrap navbar */
+    color: black;
+}
+
+h1,
+h2,
+h3 {
+    font-family: 'Roboto', sans-serif;
+    /* Add a modern font */
+}
+
+/* #changelist-filter {
+    display: none;
+} */

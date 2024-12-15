@@ -16,12 +16,24 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from config.admin import custom_admin_site
+from django.views.generic.base import RedirectView
+from django.conf.urls.static import static
+from django.contrib.staticfiles.storage import staticfiles_storage
+from django.conf import settings
 
+
+admin.site.site_header = 'Admin'
+admin.site.site_title = 'Flight'
+admin.site.index_title = 'Manage Admin'
+
+# admin.site.site_header()
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('admin/', custom_admin_site.urls),
     path('',include('frontend.urls')),
     path('payment/', include("payment.urls"),name="payment"),
     path('accounts/', include('accounts.urls'),name="accounts"),
     path('flight/', include('flights.urls') , name="flight")
-    
 ]
+    
+
