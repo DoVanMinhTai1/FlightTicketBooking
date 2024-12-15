@@ -296,6 +296,7 @@ function reset_filter() {
         flights[i].classList.add('show');
         flights[i].classList.remove('hide');
     }
+    
 }
 
 
@@ -448,15 +449,6 @@ function show_filter() {
         document.querySelector(".query-result-div .filter-div").style.display = 'block';
     }
 }
-
-
-
-
-
-
-
-
-
 
 
 

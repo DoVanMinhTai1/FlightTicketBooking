@@ -42,13 +42,3 @@ GENDER = (
     ('male','MALE'),    #(actual_value, human_readable_value)
     ('female','FEMALE')
 )
-
-class Passenger(models.Model):
-    first_name = models.CharField(max_length=64, blank=True)
-    last_name = models.CharField(max_length=64, blank=True)
-    gender = models.CharField(max_length=20, choices=GENDER, blank=True)
-    #passenger = models.ForeignKey(User, on_delete=models.CASCADE, related_name="flights")
-    #flight = models.ForeignKey(Flight, on_delete=models.CASCADE, related_name="passengers")
-
-    def __str__(self):
-        return f"Passenger: {self.first_name} {self.last_name}, {self.gender}"
