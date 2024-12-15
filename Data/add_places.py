@@ -30,4 +30,3 @@ def save_airports_to_db(csv_file_path):
 
     except Exception as e:
         print(f"An error occurred: {e}")
-

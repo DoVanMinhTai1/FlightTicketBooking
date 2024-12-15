@@ -296,6 +296,7 @@ function reset_filter() {
         flights[i].classList.add('show');
         flights[i].classList.remove('hide');
     }
+    
 }
 
 

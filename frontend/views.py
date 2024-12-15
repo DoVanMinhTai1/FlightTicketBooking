@@ -24,3 +24,4 @@ def terms_and_conditions(request):
 
 def about_us(request):
     return render(request, 'about.html')
+

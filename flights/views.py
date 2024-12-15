@@ -15,14 +15,12 @@ from .constant import FEE
 # Create your views here.
 @csrf_exempt
 def flight(request):
-    # lấy dữ liệu chuyến bay trong request
     o_place = request.GET.get('Origin')
     d_place = request.GET.get('Destination')
     trip_type = request.GET.get('TripType')
     departdate = request.GET.get('DepartDate')
     depart_date = datetime.strptime(departdate, "%Y-%m-%d")
     return_date = None
-    # nếu chuyến bay là khứ hồi
     if trip_type == '2':
         returndate = request.GET.get('ReturnDate')
         return_date = datetime.strptime(returndate, "%Y-%m-%d")
@@ -38,7 +36,6 @@ def flight(request):
 
         flights = Flight.objects.filter(depart_day=flightday, origin=1, destination=2).exclude(
             economy_fare=0).order_by('economy_fare')
-        print(flights)
         try:
             max_price = flights.last().economy_fare
             min_price = flights.first().economy_fare
@@ -129,7 +126,6 @@ def flight(request):
 
 
 def review(request):
-    print(request.GET)
     flight_1 = request.GET.get('flight1Id')
     date1 = request.GET.get('flight1Date')
     seat = request.GET.get('seatClass')
