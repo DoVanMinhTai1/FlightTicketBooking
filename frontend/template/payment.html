@@ -27,6 +27,7 @@
                     </div>
                 </div>
                 <div class="payment-details-input-box">
+
                    <form action="{% url 'checkout' %}" method="POST">
                         {% csrf_token %}
                         <input type="hidden" name="fare" value="{{fare}}">
