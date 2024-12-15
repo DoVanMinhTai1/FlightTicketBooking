@@ -53,35 +53,3 @@ class Passenger(models.Model):
     def __str__(self):
         return f"Passenger: {self.first_name} {self.last_name}, {self.gender}"
 
-SEAT_CLASS = (
-    ('economy', 'Economy'),
-    ('business', 'Business'),
-    ('first', 'First')
-)
-
-TICKET_STATUS =(
-    ('PENDING', 'Pending'),
-    ('CONFIRMED', 'Confirmed'),
-    ('CANCELLED', 'Cancelled')
-)
-
-class Ticket(models.Model):
-    user = models.ForeignKey(User,on_delete=models.CASCADE,related_name="bookings", blank=True, null=True)
-    ref_no = models.CharField(max_length=6, unique=True)
-    passengers = models.ManyToManyField(Passenger, related_name="flight_tickets")
-    flight = models.ForeignKey(Flight, on_delete=models.CASCADE, related_name="tickets", blank=True, null=True)
-    flight_ddate = models.DateField(blank=True, null=True)
-    flight_adate = models.DateField(blank=True, null=True)
-    flight_fare = models.FloatField(blank=True,null=True)
-    other_charges = models.FloatField(blank=True,null=True)
-    coupon_used = models.CharField(max_length=15,blank=True)
-    coupon_discount = models.FloatField(default=0.0)
-    total_fare = models.FloatField(blank=True, null=True)
-    seat_class = models.CharField(max_length=20, choices=SEAT_CLASS)
-    booking_date = models.DateTimeField(default=datetime.now)
-    mobile = models.CharField(max_length=20,blank=True)
-    email = models.EmailField(max_length=45, blank=True)
-    status = models.CharField(max_length=45, choices=TICKET_STATUS)
-
-    def __str__(self):
-        return self.ref_no
