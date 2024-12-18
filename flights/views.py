@@ -162,7 +162,7 @@ def review(request):
                 "flight2ddate": flight2ddate,
                 "flight2adate": flight2adate,
                 "seat": seat,
-                "fee": FEE
+                "fee": FEE,
             })
         return render(request, "book.html", {
             'flight1': flight1,

@@ -11,7 +11,7 @@
     <section class="section first-section" style="background-image: linear-gradient(rgba(0,0,0,0.2),rgba(0,0,0,0.2)), url('{% static 'img/plane3.12.jpg'%}');">
         <div class="banner-div">
             <div class="banner">
-            <h1 class="banner-text">Book Domestic and International Flight Tickets</h1>
+            <h1 class="banner-text"></h1>
             </div>
         </div>
         <div class="search-flight">
@@ -81,7 +81,13 @@
             </form>
             </div>
         </div>
+        <ol class="carousel-indicators">
+            <li data-slide-to="0" class="active"></li>
+            <li data-slide-to="1"></li>
+            <li data-slide-to="2"></li>
+        </ol>
     </section>
+
     <section class="section second-section">
         <div class="container">
             <div class="row justify-content-center">
@@ -155,4 +161,54 @@
             </div>
         </div>
     </section>
+        <script>
+document.addEventListener("DOMContentLoaded", () => {
+    const section = document.querySelector('.first-section');
+    const indicators = document.querySelectorAll('.carousel-indicators li');
+    const images = [
+        '/static/img/banner.png', // The image URLs can be updated or dynamic
+        '/static/img/banner2.png',
+        '/static/img/banner3.png',
+    ];
+
+    let currentIndex = 0;
+    let interval;
+
+    // Function to change background image
+    function changeBackgroundImage(index) {
+        currentIndex = index; // Update the current index
+        section.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.2),rgba(0,0,0,0.2)), url(${images[index]})`;
+        indicators.forEach((indicator, idx) => {
+            indicator.classList.toggle('active', idx === index);
+        });
+    }
+
+    // Function to start auto rotation
+    function startAutoRotation() {
+        interval = setInterval(() => {
+            const nextIndex = (currentIndex + 1) % images.length; // Cycle to the next image
+            changeBackgroundImage(nextIndex);
+        }, 5000); // Change every 3 seconds
+    }
+
+    // Function to stop auto rotation (for manual control)
+    function stopAutoRotation() {
+        clearInterval(interval);
+    }
+
+    // Add click event listeners to indicators for manual control
+    indicators.forEach((indicator, index) => {
+        indicator.addEventListener('click', () => {
+            stopAutoRotation(); // Stop auto rotation when manually controlled
+            changeBackgroundImage(index);
+            startAutoRotation(); // Restart auto rotation after manual control
+        });
+    });
+
+    // Initialize the background with the first image and start auto rotation
+    changeBackgroundImage(currentIndex);
+    startAutoRotation();
+});
+
+        </script>
 {% endblock%}

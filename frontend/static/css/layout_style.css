@@ -38,6 +38,8 @@ body{
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
+    transition: background-image 1s ease-in-out;
+    position: relative;
 }
 
 .banner-div{
@@ -342,5 +344,33 @@ footer .container > div{
 ::-webkit-scrollbar-thumb {
     background: #ccc;
     border-radius: 5px;
+}
+.carousel-indicators {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: center;
+    list-style-type: none;
+    padding: 0;
+}
+
+.carousel-indicators li {
+    background-color: #fff;
+    border-radius: 50%;
+    width: 12px;
+    height: 12px;
+    margin: 0 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.carousel-indicators li.active {
+    background-color: #e12323;
+}
+
+.carousel-indicators li:hover {
+    background-color: #ddd;
 }
 

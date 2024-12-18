@@ -88,10 +88,10 @@ def ticket_data(request, ref):
         'flight_date': ticket.flight_ddate,
         'status': ticket.status
     })
-
 def book(request):
     fare = 0
-    if request.method == 'POST':
+    coupons = {'FL928K': 0.3, 'FL239D': 0.4, 'FL138S':0.2}
+    if request.method == "POST":
         if request.user.is_authenticated:
             flight1 = Flight.objects.get(id=request.POST.get('flight1'))
             flight_1date = request.POST.get('flight1Date')
@@ -137,6 +137,9 @@ def book(request):
                     fare_ticket1 = (flight1.first_fare * int(passengerscount))
                     if f2:
                         fare_ticket2 = (flight2.first_fare * int(passengerscount))
+                if coupon:
+                    fare_ticket1 = round(fare_ticket1 * (1-coupons[coupon]),2)
+                    fare_ticket2 = round(fare_ticket2 * (1 - coupons[coupon]),2)
                 fare = fare_ticket1 + fare_ticket2
             except Exception as e:
                 return HttpResponse(e)
