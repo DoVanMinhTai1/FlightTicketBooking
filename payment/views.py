@@ -57,8 +57,8 @@ def payment_view(request):
                             'fare' : fare,}
                     payment.ticket_id2 = ticket2
                     # Kiểm tra số của thẻ có dưới 12 chữ số hay không. Không thì báo lỗi
-                if len(cardNumber) < 12:
-                    messages.warning(request, 'Card number must be at least 12 digits')
+                if len(cardNumber) != 12:
+                    messages.warning(request, 'Card number must be 12 digits')
                     return render(request, 'payment.html', tics)
                         # Kiểm tra xem thời gian hiệu lực của thẻ
                 if expYear < current_year or (expYear == current_year and expMonth < current_month):
@@ -108,8 +108,27 @@ def book(request):
                 flight_2date = request.POST.get('flight2Date')
                 flight_2class = request.POST.get('flight2Class')
                 f2 = True
+            if len(mobile) != 10:
+                messages.warning(request, 'Mobile must be 10 digits')
+
+                seat = request.POST.get('seat')
+                mes = {
+                    'flight1': flight1,
+                    "flight1Date": flight_1date,  # Pass it back to the template
+                    "flight1Class": flight_1class,
+                    "seat": seat,
+                    "fee": FEE,
+                }
+                if f2:
+                    mes.update({
+                        'flight2': flight2,
+                        "flight2Date": flight_2date,
+                        "flight2Class": flight_2class,
+                    })
+                return render(request, 'book.html', mes)
             passengerscount = request.POST['passengersCount']
             passengers = []
+
             for i in range(1, int(passengerscount) + 1):
                 fname = request.POST[f'passenger{i}FName']
                 lname = request.POST[f'passenger{i}LName']
@@ -191,5 +210,4 @@ def createticket(user,passengers,passengerscount,flight1,flight_1date,flight_1cl
     ticket.status = 'PENDING'
     ticket.mobile = ('+'+countrycode+' '+mobile)
     ticket.email = email
-    ticket.save()
     return ticket
