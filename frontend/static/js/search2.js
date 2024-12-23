@@ -1,3 +1,10 @@
+
+/* khi trang html được tải xong thì sẽ gọi một số hàm để khởi tạo hành động
+- flight_duration: hiện thị thời gian chuyến bay
+- filter_price: áp dụng bộ lọc giá 
+- reset_filter : thiết lập lại bộ lọc gía
+- initial_click,tab_change,flight_select: 1 số hàm xử lý sự kiện khi người dùng click
+*/
 document.addEventListener("DOMContentLoaded", () => {
     flight_duration();
     //document.querySelector(".filter-price input[type=range]").addEventListener('input', filter); //filter_price
@@ -296,13 +303,8 @@ function reset_filter() {
         flights[i].classList.add('show');
         flights[i].classList.remove('hide');
     }
-    
+
 }
-
-
-
-
-
 
 
 ////////////////////////////////

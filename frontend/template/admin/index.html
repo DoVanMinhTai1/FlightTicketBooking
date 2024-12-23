@@ -3,34 +3,37 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h1 class="display-4 text-center">Admin Dashboard</h1>
-    <div class="row mt-4">
-        <div class="col-md-4">
-            <div class="card border-primary">
-                <div class="card-body">
-                    <h5 class="card-title">Manage Users</h5>
-                    <p class="card-text">Add, update, or delete user accounts.</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card border-success">
-                <div class="card-body">
-                    <h5 class="card-title">View Reports</h5>
-                    <p class="card-text">Check analytics and generate reports.</p>
-                    <a href="#" class="btn btn-success">Go</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card border-danger">
-                <div class="card-body">
-                    <h5 class="card-title">Settings</h5>
-                    <p class="card-text">Adjust system settings and preferences.</p>
-                    <a href="#" class="btn btn-danger">Go</a>
-                </div>
-            </div>
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-8">
+            <canvas id="myChart"></canvas>
         </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Dữ liệu mẫu cho biểu đồ
+    var ctx = document.getElementById('myChart').getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'line', // Loại biểu đồ (có thể là 'line', 'bar', 'pie', v.v.)
+        data: {
+            labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'], // Nhãn trục X
+            datasets: [{
+                label: 'monthly revenue',
+                data: [12, 19, 3, 5, 2, 3, 10], // Dữ liệu cho biểu đồ
+                fill: false,
+                borderColor: 'rgba(75, 192, 192, 1)', // Màu đường biên
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true, // Làm cho biểu đồ tự động thay đổi kích thước khi thay đổi kích thước cửa sổ
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
 {% endblock %}

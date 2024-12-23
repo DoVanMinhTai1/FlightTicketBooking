@@ -113,5 +113,5 @@ def save_batch(flights_batch):
         print(f"Error saving batch: {e}")
 
 if __name__ == "__main__":
-    csv_file = r"D:\PythonProject\Project_Python\Data\international_flights.csv"
+    csv_file = r"D:\PythonProject\Project_Python\Data\domestic_flights.csv"
     load_flights(csv_file)

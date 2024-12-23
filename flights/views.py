@@ -13,6 +13,10 @@ from .constant import FEE
 
 
 # Create your views here.
+"""
+Hàm flight lấy dữ liệu từ request và kiểm tra loại chuyến bay là 1 hay 2 ( khứ hồi hay 1 chiều) sau đó sẽ truy vấn dựa vào loại chuyến bay cùng với hạng ghế 
+kết quả sẽ được truyền đến trang search.html
+"""
 @csrf_exempt
 def flight(request):
     o_place = request.GET.get('Origin')
@@ -150,9 +154,6 @@ def review(request):
             flight2ddate = datetime(int(date2.split('-')[2]), int(date2.split('-')[1]), int(date2.split('-')[0]),
                                     flight2.depart_time.hour, flight2.depart_time.minute)
             flight2adate = (flight2ddate + flight2.duration)
-        # print("//////////////////////////////////")
-        # print(f"flight1ddate: {flight1adate-flight1ddate}")
-        # print("//////////////////////////////////")
         if round_trip:
             return render(request, "book.html", {
                 'flight1': flight1,
