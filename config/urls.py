@@ -33,7 +33,8 @@ urlpatterns = [
     path('',include('frontend.urls')),
     path('payment/', include("payment.urls"),name="payment"),
     path('accounts/', include('accounts.urls'),name="accounts"),
-    path('flight/', include('flights.urls') , name="flight")
+    path('flight/', include('flights.urls') , name="flight"),
+    path('booking/', include('booking.urls') , name="booking")
 ]
     
 

@@ -10,8 +10,8 @@ from .models import *
 def index(request):
     return render(request,'index.html')
 
-def flight_search(request):
-    return render(request,'search.html')
+def about(request):
+    return render(request,'about.html')
 
 def contact(request):
     return render(request, 'contact.html')
@@ -21,7 +21,3 @@ def privacy_policy(request):
 
 def terms_and_conditions(request):
     return render(request, 'terms.html')
-
-def about_us(request):
-    return render(request, 'about.html')
-
