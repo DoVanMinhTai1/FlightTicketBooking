@@ -11,7 +11,7 @@ class PlaceAdmin(admin.ModelAdmin):
     class Media:
         css = {
             'all': ('css/custom_admin.css',)  # Đảm bảo bạn tạo file custom_admin.css trong thư mục static
-        },
+        }
         js = ('js/admin/admin.js',)
 
 class WeekAdmin(admin.ModelAdmin):
@@ -21,7 +21,7 @@ class WeekAdmin(admin.ModelAdmin):
     class Media:
         css = {
             'all': ('css/custom_admin.css',)  # Đảm bảo bạn tạo file custom_admin.css trong thư mục static
-        },
+        }
         js = ('js/admin/admin.js',)
 
 class FlightAdmin(admin.ModelAdmin):
@@ -35,7 +35,7 @@ class FlightAdmin(admin.ModelAdmin):
     class Media:
         css = {
             'all': ('css/custom_admin.css',)  # Đảm bảo bạn tạo file custom_admin.css trong thư mục static
-        },
+        }
         js = ('js/admin/admin.js',)
 
 custom_admin_site.register(Place, PlaceAdmin)
