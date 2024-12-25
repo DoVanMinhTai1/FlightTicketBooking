@@ -34,7 +34,11 @@ urlpatterns = [
     path('payment/', include("payment.urls"),name="payment"),
     path('accounts/', include('accounts.urls'),name="accounts"),
     path('flight/', include('flights.urls') , name="flight"),
+<<<<<<< HEAD
     path('booking/', include('booking.urls') , name="booking")
+=======
+    path('book/', include('booking.urls'), name="book")
+>>>>>>> a44a914 (thành)
 ]
     
 
