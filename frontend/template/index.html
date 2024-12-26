@@ -66,6 +66,10 @@
                             <input type="date" name="ReturnDate" min="{{min_date}}" max="{{max_date}}" id="return_date" placeholder="Date" class="form-control mr-sm-2" value="{{return_date}}" {% if trip_type != '2' %} disabled {% endif %}>
                         </div>
                         <div class="input-row">
+                            <label for="return_date">Số người: </label>
+                            <input type="number" placeholder="số người" class="form-control mr-sm-2" value ="1">
+                        </div>
+                        <div class="input-row">
                             <label for="seat_class">Class: </label>
                             <select name="SeatClass" id="SeatType" class="form-control mr-sm-2 selectpicker">
                                 <option value="economy" {% if seat == 'economy' %}selected{% endif %}>Economy</option>

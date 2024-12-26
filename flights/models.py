@@ -22,7 +22,6 @@ class Week(models.Model):
 
 
 class Flight(models.Model):
-    
     origin = models.ForeignKey(Place, on_delete=models.CASCADE, related_name="departures",null=True)
     destination = models.ForeignKey(Place, on_delete=models.CASCADE, related_name="arrivals",null=True)
     depart_time = models.TimeField(auto_now=False, auto_now_add=False,null=True)
@@ -34,7 +33,6 @@ class Flight(models.Model):
     economy_fare = models.FloatField(null=True)
     business_fare = models.FloatField(null=True)
     first_fare = models.FloatField(null=True)
-
     def __str__(self):
         return f"{self.id}: {self.origin} to {self.destination}"
 

@@ -38,8 +38,18 @@ def flight(request):
     origin = Place.objects.get(code=o_place.upper())
     if seat == 'economy':
 
-        flights = Flight.objects.filter(depart_day=flightday, origin=1, destination=2).exclude(
+        # flights = Flight.objects.filter(depart_day=flightday,origin= origin.pk, destination=destination.pk).exclude(
+        #     economy_fare=0).order_by('economy_fare')
+        flights = Flight.objects.filter(depart_day=flightday, destination=destination.pk).exclude(
             economy_fare=0).order_by('economy_fare')
+        # l = [fl.origin for fl in flights if fl.origin != origin]
+        # flights = Flight.objects.filter(
+        #     depart_day=flightday,
+        #     origin=origin,
+        #     destination__in=l
+        # ).exclude(
+        #     economy_fare=0
+        # ).order_by('economy_fare')
         try:
             max_price = flights.last().economy_fare
             min_price = flights.first().economy_fare

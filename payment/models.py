@@ -16,6 +16,17 @@ TICKET_STATUS =(
     ('CONFIRMED', 'Confirmed'),
     ('CANCELLED', 'Cancelled')
 )
+SEAT_STATUS =(
+    ('AVAILABLE', 'Available'),
+    ('SELECTED', 'Selected'),
+)
+class Seat(models.Model):
+    seat_name = models.CharField(max_length=20)
+    price = models.FloatField()
+    type = models.CharField(max_length=20, choices=SEAT_CLASS)
+    status = models.CharField(max_length=20, choices=SEAT_STATUS)
+    flight = models.ForeignKey(Flight, on_delete=models.CASCADE)
+
 class Passenger(models.Model):
     first_name = models.CharField(max_length=120, null=True)
     last_name = models.CharField(max_length=120, null=True)
@@ -39,6 +50,9 @@ class Ticket(models.Model):
     email = models.EmailField(max_length=45, blank=True)
     status = models.CharField(max_length=45, choices=TICKET_STATUS)
 
+class Ticket_Seat(models.Model):
+    seat = models.ForeignKey(Seat, on_delete=models.CASCADE)
+    ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE)
 
 class Payment(models.Model):
     STATUS = (
