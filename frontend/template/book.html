@@ -17,7 +17,7 @@
             {% endfor %}
         {% endif %}
     <section class="section section1">
-        <form action="{% url 'book' %}" onsubmit="return book_submit()" method="POST">
+        <form action="{% url 'book' %}" onsubmit="return    book_submit()" method="POST">
             {% csrf_token %}
             {% if flight1Date %}
                 <input type="hidden" name="flight1Date" value='{{flight1Date}}'>

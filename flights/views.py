@@ -8,18 +8,17 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from datetime import datetime
 import math
-
-from payment.models import Seat
 from .models import *
 from .constant import FEE
-
+import logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 # Create your views here.
 """
 Hàm flight lấy dữ liệu từ request và kiểm tra loại chuyến bay là 1 hay 2 ( khứ hồi hay 1 chiều) sau đó sẽ truy vấn dựa vào loại chuyến bay cùng với hạng ghế 
 kết quả sẽ được truyền đến trang search.html
 """
-@csrf_exempt
 def flight(request):
     o_place = request.GET.get('Origin')
     d_place = request.GET.get('Destination')
@@ -70,10 +69,12 @@ def flight(request):
         )
         # lấy những chuyến bay hợp lệ chỉ lấy 5 cái bay thẳng và 3 cái có nối chuyến (gồm 2 chuyến nhỏ)
         valid_flight = []
+        intermediate_flights = []
         for fl in flights:
             valid_flight.append(fl)
             if len(valid_flight) == 5:
                 break
+        count = 0
         check = {origin.code}
         for fl in flights_stt:
             if len(valid_flight) >= 10:
@@ -81,12 +82,36 @@ def flight(request):
             for fl1 in flights_sts:
                 if fl.destination == fl1.origin and fl.arrival_time < fl1.depart_time:
                     if not check.__contains__(fl.destination):
+                        today = datetime.today().date()
+                        arrival_datetime = datetime.combine(today, fl.arrival_time)
+                        departure_datetime = datetime.combine(today, fl1.depart_time)
+                        waiting_time = departure_datetime - arrival_datetime
                         valid_flight.append(fl)
                         valid_flight.append(fl1)
+                        intermediate_flights.append((fl, fl1,waiting_time))
+                        print(f"Added intermediate flights: {fl} -> {fl1}")
                         check.add(fl.destination)
 
         # Combine all QuerySets (order_by is applied only after union)
         # flights = flights.union(flights_sts).union(flights_stt).order_by('economy_fare')
+       
+        print("Final list of valid flights:")
+        for vf in valid_flight:
+            print(vf)
+
+            print("\nList of intermediate flights:")
+        for pair in intermediate_flights:
+            print(f"From {pair[0]} to {pair[1]}")
+        print("\n--- Intermediate Flights ---")
+        if intermediate_flights:
+            for idx, (fl1, fl2,waiting_time) in enumerate(intermediate_flights, start=1):
+                print(f"Intermediate Flight {idx}:")
+                print(f"  From {fl1.origin} to {fl1.destination}, Departure: {fl1.depart_time}, Arrival: {fl1.arrival_time}")
+                print(f"  Connecting to {fl2.origin} to {fl2.destination}, Departure: {fl2.depart_time}, Arrival: {fl2.arrival_time}")
+                print(f"  Waiting Time: {waiting_time}")
+        else:
+            print("No intermediate flights available.")
+
         try:
             max_price = flights.last().economy_fare
             min_price = flights.first().economy_fare
@@ -143,7 +168,7 @@ def flight(request):
             except:
                 max_price2 = 0  ##
                 min_price2 = 0  ##    ##
-
+       
     # print(calendar.day_name[depart_date.weekday()])
     if trip_type == '2':
         return render(request, "search.html", {
@@ -160,7 +185,8 @@ def flight(request):
             'max_price': math.ceil(max_price / 100) * 100,
             'min_price': math.floor(min_price / 100) * 100,
             'max_price2': math.ceil(max_price2 / 100) * 100,  ##
-            'min_price2': math.floor(min_price2 / 100) * 100  ##
+            'min_price2': math.floor(min_price2 / 100) * 100,
+            'intermediate_flights': intermediate_flights
         })
     else:
         return render(request, "search.html", {
@@ -172,16 +198,15 @@ def flight(request):
             'depart_date': depart_date,
             'return_date': return_date,
             'max_price': math.ceil(max_price / 100) * 100,
-            'min_price': math.floor(min_price / 100) * 100
+            'min_price': math.floor(min_price / 100) * 100,
+            'intermediate_flights': intermediate_flights
         })
-
 
 def review(request):
     flight_1 = request.GET.get('flight1Id')
     date1 = request.GET.get('flight1Date')
     seat = request.GET.get('seatClass')
     round_trip = False
-    print(flight_1)
     if request.GET.get('flight2Id'):
         round_trip = True
 
@@ -197,7 +222,6 @@ def review(request):
         flight2 = None
         flight2ddate = None
         flight2adate = None
-        seats = Seat.objects.filter(flight=flight1)
         if round_trip:
             flight2 = Flight.objects.get(id=flight_2)
             flight2ddate = datetime(int(date2.split('-')[2]), int(date2.split('-')[1]), int(date2.split('-')[0]),
@@ -215,7 +239,6 @@ def review(request):
                 "fee": FEE,
             })
         return render(request, "book.html", {
-            'seats': seats,
             'flight1': flight1,
             "flight1ddate": flight1ddate,
             "flight1adate": flight1adate,
