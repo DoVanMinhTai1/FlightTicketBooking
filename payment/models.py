@@ -16,15 +16,12 @@ TICKET_STATUS =(
     ('CONFIRMED', 'Confirmed'),
     ('CANCELLED', 'Cancelled')
 )
-SEAT_STATUS =(
-    ('AVAILABLE', 'Available'),
-    ('SELECTED', 'Selected'),
-)
+
 class Seat(models.Model):
     seat_name = models.CharField(max_length=20)
     price = models.FloatField()
     type = models.CharField(max_length=20, choices=SEAT_CLASS)
-    status = models.CharField(max_length=20, choices=SEAT_STATUS)
+    status = models.BooleanField(default=True)
     flight = models.ForeignKey(Flight, on_delete=models.CASCADE)
 
 class Passenger(models.Model):

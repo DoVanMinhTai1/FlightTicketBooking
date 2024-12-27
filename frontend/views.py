@@ -21,3 +21,6 @@ def privacy_policy(request):
 
 def terms_and_conditions(request):
     return render(request, 'terms.html')
+
+def show_seats_page(request):
+    return render(request, 'frontend/show_seats_page.html')

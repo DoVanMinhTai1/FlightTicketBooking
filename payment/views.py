@@ -1,13 +1,16 @@
 from datetime import datetime
 
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.urls import reverse
 import secrets
 from flights.constant import FEE
 from flights.models import Flight
 from payment.models import Payment, Passenger, Ticket
+from payment.models import Seat
+from .models import Flight, Seat
+from django.db import models
 from frontend.template import *
 
 def payment_view(request):
@@ -211,3 +214,12 @@ def createticket(user,passengers,passengerscount,flight1,flight_1date,flight_1cl
     ticket.mobile = ('+'+countrycode+' '+mobile)
     ticket.email = email
     return ticket
+
+def show_seats(request, flight_id):
+    flight = get_object_or_404(Flight, id=flight_id)
+    seats = Seat.objects.filter(flight=flight)
+    # Trả về dữ liệu ghế và chuyến bay
+    return render(request, 'payment/show_seats.html', {
+        'flight': flight,
+        'seats': seats
+    })

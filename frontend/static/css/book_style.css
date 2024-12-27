@@ -1,24 +1,31 @@
-.section1{
+.section1 {
     background-color: rgba(10, 0, 0, .05);
 }
-.col-8 > div, .col-4 > div{
+
+.col-8>div,
+.col-4>div {
     background-color: #fff;
 }
 
-.col-8{
-    padding: 15px;
-}
-.col-4{
+.col-8 {
     padding: 15px;
 }
 
-h5{
+.col-4 {
+    padding: 15px;
+}
+
+h5 {
     background: -webkit-linear-gradient(right, crimson, #b8017b);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
-.ticket-details, .traveller-details, .seat-map, .price-details, .coupon-code{
+.ticket-details,
+.traveller-details,
+.seat-map,
+.price-details,
+.coupon-code {
     margin-top: 15px;
     margin-bottom: 15px;
     padding: 13px;
@@ -27,171 +34,214 @@ h5{
     overflow: hidden;
 }
 
-.col-8 > div > hr, .col-4 > div > hr{
+.col-8>div>hr,
+.col-4>div>hr {
     margin: 0px -13px;
-    border-top: 0.5px solid rgba(0,0,0,.1);
+    border-top: 0.5px solid rgba(0, 0, 0, .1);
 }
-.ticket-details-div{
+
+.ticket-details-div {
     margin: 13px 10px;
 }
 
-.time-details > div{
+.time-details>div {
     text-align: center;
 }
 
-.time-details{
+.time-details {
     margin-right: 25px;
     margin-left: -25px;
 }
-.brand{
+
+.brand {
     font-weight: 600;
 }
-.plane-name{
+
+.plane-name {
     color: #4a4a4a;
     font-size: .8em;
 }
-.time{
+
+.time {
     font-size: 1.4em;
     font-weight: 600;
 }
-.duration{
+
+.duration {
     border-bottom: 0.7px solid #9f9f9f;
     font-size: .9em;
     color: #454545;
 }
-.date, .place, .airport{
+
+.date,
+.place,
+.airport {
     font-size: smaller;
 }
-.date{
+
+.date {
     font-size: 1em;
     font-weight: 600;
     color: #454545;
 }
-.place{
+
+.place {
     color: #4a4a4a;
     font-size: .8em;
     font-weight: 600;
 }
-.airport{
+
+.airport {
     color: #4a4a4a;
     font-size: .8em;
 }
-.baggage-details{
+
+.baggage-details {
     font-size: .8em;
     color: grey;
     padding-top: 13px;
 }
 
-.each-traveller{
+.each-traveller {
     justify-content: space-between;
     margin: 13px 10px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, .15);
     padding: 8px 17px;
     border-radius: 10px;
 }
-.traveller-head{
+
+.traveller-head {
     display: flex;
     justify-content: space-between;
 }
-.traveller-head h6{
+
+.traveller-head h6 {
     color: darkgreen;
     padding-top: 2px;
 }
-.add-traveller{
+
+.add-traveller {
     /*margin: 13px;*/
     padding-top: 13px;
 }
-.add-traveller-btn{
+
+.add-traveller-btn {
     color: blue;
     padding: 0;
     font-size: .9em;
 }
-.add-traveller-btn:hover{
+
+.add-traveller-btn:hover {
     color: blue;
 }
-.add-traveller-btn:focus, .add-traveller-btn:active{
+
+.add-traveller-btn:focus,
+.add-traveller-btn:active {
     box-shadow: none;
 }
-.traveller-name{
+
+.traveller-name {
     font-weight: 600;
 }
-.delete-traveller button{
+
+.delete-traveller button {
     padding: 0;
 }
-.delete-traveller button:focus, .delete-traveller button:active{
+
+.delete-traveller button:focus,
+.delete-traveller button:active {
     box-shadow: none;
 }
-.delete-traveller button:hover{
+
+.delete-traveller button:hover {
     color: red;
 }
 
-.contact-details-div{
+.contact-details-div {
     margin: 13px 10px;
     padding: 10px;
     flex-flow: column;
 }
-.contact-details form{
+
+.contact-details form {
     flex: 1;
 }
-.ci{
+
+.ci {
     font-weight: 400;
     color: #4a4a4a;
     font-size: .9em;
 }
-.cd{
+
+.cd {
     font-weight: 550;
 }
-.send-email{
+
+.send-email {
     font-size: .87em;
     color: grey;
     padding-top: 13px;
 }
-.add-traveller-div{
+
+.add-traveller-div {
     border: 1px solid lightgrey;
     border-radius: 5px;
     margin: 13px 10px;
     padding: 10px;
     flex-flow: column;
 }
-.add-traveller-div form{
+
+.add-traveller-div form {
     flex: 1;
 }
-.note-name{
+
+.note-name {
     font-size: .9em;
     margin-bottom: 9px;
 }
-.note-name span{
+
+.note-name span {
     font-weight: 600;
 }
-.radio-div > div{
+
+.radio-div>div {
     padding-left: 15px;
 }
 
-.seat-map{
+.seat-map {
     display: flex;
     justify-content: space-between;
 }
-.seat-map-label{
+
+.seat-map-label {
     margin-left: 10px;
     margin-right: 10px;
     display: flex;
     margin-top: auto;
     margin-bottom: auto;
 }
-.payment-btn{
+
+.payment-btn {
     display: flex;
     justify-content: center;
 }
 
-.base-fare, .surcharges, .other-service, .total-fare{
+.base-fare,
+.surcharges,
+.other-service,
+.total-fare {
     margin: 13px 10px;
     justify-content: space-between;
     font-weight: bold;
 }
-.base-fare-value, .surcharges-value, .other-service-value{
+
+.base-fare-value,
+.surcharges-value,
+.other-service-value {
     font-size: 1.1em;
 }
-.total-fare{
+
+.total-fare {
     font-size: 1.3em;
     padding-top: 13px;
     display: flex;
@@ -200,23 +250,26 @@ h5{
 
 
 
-.media-payment-btn{
+.media-payment-btn {
     display: none;
 }
-.media-payment-btn > div{
+
+.media-payment-btn>div {
     display: flex;
     justify-content: center;
 }
 
-.media-airline{
+.media-airline {
     display: none;
 }
-.media-airline > div{
+
+.media-airline>div {
     display: flex;
     text-align: left;
     margin-top: 13px;
 }
-.media-airline > div > div{
+
+.media-airline>div>div {
     margin-top: auto;
     margin-bottom: auto;
 }
@@ -224,93 +277,116 @@ h5{
 
 
 @media (max-width: 376px) {
-    .container-fluid{
+    .container-fluid {
         background-color: rgba(10, 0, 0, .05);
     }
-    .section1{
+
+    .section1 {
         background-color: transparent;
     }
-    .section{
+
+    .section {
         padding-top: 0;
     }
-    .main-row{
+
+    .main-row {
         display: block;
         margin-left: 0;
         margin-right: 0;
     }
-    .main-row > div{
+
+    .main-row>div {
         max-width: 100%;
         padding: 0;
     }
-    .main-row > div > div{
+
+    .main-row>div>div {
         border-radius: 0;
     }
-    .payment-btn{
+
+    .payment-btn {
         display: none;
     }
-    .media-payment-btn{
+
+    .media-payment-btn {
         display: block;
     }
-    .contact-details-div{
+
+    .contact-details-div {
         margin: 0;
         padding: 0;
     }
-    .contact-details-div > div{
+
+    .contact-details-div>div {
         display: block;
     }
-    .contact-details-div > div > div{
+
+    .contact-details-div>div>div {
         max-width: 100%;
         width: 100%;
         margin-top: 10px;
     }
-    .individual-traveller-div .each-traveller{
+
+    .individual-traveller-div .each-traveller {
         margin-left: 0;
         margin-right: 0;
     }
-    .individual-traveller-div .add-traveller-div{
+
+    .individual-traveller-div .add-traveller-div {
         margin-left: 0;
         margin-right: 0;
     }
-    .individual-traveller-div .add-traveller-div-name{
+
+    .individual-traveller-div .add-traveller-div-name {
         display: block;
     }
-    .individual-traveller-div .add-traveller-div-name > div{
+
+    .individual-traveller-div .add-traveller-div-name>div {
         margin-top: 10px;
     }
-    .price-details > .row{
+
+    .price-details>.row {
         margin-left: 0;
         margin-right: 0;
     }
-    .price-details{
+
+    .price-details {
         margin-top: 0;
     }
-    .coupon-code .base-fare{
+
+    .coupon-code .base-fare {
         margin-left: 0;
         margin-right: 0;
     }
-    .coupon-apply{
-        padding-right: 0!important;
+
+    .coupon-apply {
+        padding-right: 0 !important;
     }
-    .ticket-details-div{
+
+    .ticket-details-div {
         margin-left: 0;
         margin-right: 0;
         margin-top: 5px;
         justify-content: space-between;
     }
-    .ticket-details-div > .airline-name{
+
+    .ticket-details-div>.airline-name {
         display: none;
     }
-    .ticket-details-div .depart-time{
+
+    .ticket-details-div .depart-time {
         max-width: 36%;
         width: 36%;
         flex: auto;
     }
-    .ticket-details-div .arrival-time{
+
+    .ticket-details-div .arrival-time {
         max-width: 36%;
         width: 36%;
         flex: auto;
     }
-    .ticket-details-div .time-details{
+
+    .ticket-details-div .time-details {
         margin-left: 0;
         margin-right: 0;
         width: fit-content;
@@ -321,42 +397,224 @@ h5{
         padding-left: 5px;
         padding-right: 5px;
     }
-    .ticket-details-div .airport{
-        
-    }
-    .ticket-details-div .time-details{
+
+    .ticket-details-div .airport {}
+
+    .ticket-details-div .time-details {
         display: flex;
     }
-    .ticket-details-div .time-details > div{
+
+    .ticket-details-div .time-details>div {
         margin-top: auto;
         margin-bottom: auto;
     }
-    .ticket-details-div .time{
+
+    .ticket-details-div .time {
         font-size: 1.4em;
     }
-    .ticket-details-div .depart-time{
+
+    .ticket-details-div .depart-time {
         padding-left: 0;
         padding-right: 10px;
     }
-    .ticket-details-div .arrival-time{
+
+    .ticket-details-div .arrival-time {
         padding-left: 10px;
         padding-right: 0;
         text-align: right;
     }
-    .ticket-details-div .ddate{
+
+    .ticket-details-div .ddate {
         font-size: .9em;
         font-weight: normal;
         color: black;
     }
-    .ticket-details-div .adate{
+
+    .ticket-details-div .adate {
         font-size: .9em;
         font-weight: normal;
         color: black;
     }
-    .round-seperator > hr{
-        border-top: 1px dashed rgba(0,0,0,.5) !important;
+
+    .round-seperator>hr {
+        border-top: 1px dashed rgba(0, 0, 0, .5) !important;
     }
-    .media-airline{
+
+    .media-airline {
         display: block;
     }
+}
+
+.col-4.seat-contai{
+    justify-content: center;
+    flex: none;
+    max-width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.css-1pte3s8 {
+    background: rgb(244, 244, 244);
+    display: flex;
+    flex-direction: column;
+    min-height: 350px;
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.css-x36z6u {
+    border-radius: 0px 0px 0.1875rem 0.1875rem;
+    height: 100%;
+    opacity: 1;
+    overflow: auto;
+    position: relative;
+    text-size-adjust: none;
+    top: 0px;
+    user-select: none;
+    visibility: visible;
+    width: 100%;
+}
+
+.css-1bo27v1 {
+    left: 0px;
+    position: absolute;
+    right: 0px;
+    top: 0px;
+}
+
+.css-1vtg00a {
+    display: flex;
+    -webkit-box-pack: center;
+    justify-content: center;
+    margin: 0px auto;
+    width: fit-content;
+}
+
+.css-1gm3vek {
+    background-color: rgb(170, 170, 170);
+    margin-left: 1.875rem;
+    margin-right: 0.625rem;
+    width: 0.3125rem;
+}
+
+.css-135868z {
+    display: flex;
+}
+
+.css-nqgst {
+    background-color: rgb(170, 170, 170);
+    margin-left: 0.625rem;
+    margin-right: 1.875rem;
+    width: 0.3125rem;
+}
+
+.css-135868z> :not(:last-child) {
+    margin-right: 0.25rem;
+}
+
+.css-135868z>* {
+    margin: 0.3125rem 0px;
+}
+
+.css-1bo86yw {
+    -webkit-box-align: center;
+    align-items: center;
+    font-size: 0.75rem;
+    display: flex;
+    height: 2rem;
+    -webkit-box-pack: center;
+    justify-content: center;
+    width: 2rem;
+}
+
+.css-19x5fzk {
+    display: flex;
+    height: 2rem;
+    -webkit-box-pack: center;
+    justify-content: center;
+    width: 2rem;
+}
+
+.css-1266wm3 {
+    cursor: pointer;
+    appearance: none;
+    background-color: transparent;
+    border: 0px;
+    font-family: inherit;
+    padding: 0px;
+    text-align: left;
+    display: flex;
+    height: 2rem;
+    -webkit-box-pack: center;
+    justify-content: center;
+    width: 2rem;
+    outline: 0px;
+    position: relative;
+}
+
+.css-hrd7it {
+    background-color: transparent;
+    margin-left: 1.875rem;
+    margin-right: 0.625rem;
+    width: 0.3125rem;
+}
+
+.css-13978jc {
+    background-color: transparent;
+    margin-left: 0.625rem;
+    margin-right: 1.875rem;
+    width: 0.3125rem;
+}
+
+.css-1mwn2zj {
+    -webkit-box-align: center;
+    align-items: center;
+    display: flex;
+    height: 1.375rem;
+    -webkit-box-pack: center;
+    justify-content: center;
+    margin-bottom: 0px;
+    margin-top: 0px;
+    position: relative;
+    width: 2rem;
+}
+
+.css-1mwn2zj svg {
+    fill: rgb(221, 0, 0);
+    height: 24px;
+    position: absolute;
+    width: 24px;
+    left: 0px;
+}
+
+.css-xuh6ke svg {
+    fill: rgb(221, 0, 0);
+    height: 24px;
+    position: absolute;
+    width: 24px;
+    right: 0px;
+}
+
+.css-xuh6ke {
+    -webkit-box-align: center;
+    align-items: center;
+    display: flex;
+    height: 1.375rem;
+    -webkit-box-pack: center;
+    justify-content: center;
+    margin-bottom: 0px;
+    margin-top: 0px;
+    position: relative;
+    width: 2rem;
+}
+
+.css-157l618 {
+    background: transparent;
+    display: flex;
+    height: 2rem;
+    -webkit-box-pack: center;
+    justify-content: center;
+    width: 2rem;
 }
