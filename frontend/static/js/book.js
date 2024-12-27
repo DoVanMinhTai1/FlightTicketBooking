@@ -106,17 +106,31 @@ function book_submit() {
     alert("Please add atleast one passenger.")
     return false;
 }
+let couponApplied = false; // Flag to track if a coupon has been applied
+let couponCodeApplied = ''; // Store the applied coupon code for removal
+let percentDiscount = 1; // No discount applied by default
+
 // Utility function to check if today's date is within a given range
 function isTodayInRange(startDate, endDate) {
     const today = new Date();
     return today >= new Date(startDate) && today <= new Date(endDate);
 }
+function updateTotalFare1() {
+    const totalFareContainer = document.querySelector('.total-fare-value span');
 
+    // Get the total fare from Django context or other variables
+    let totalFare = parseFloat(totalFareContainer.textContent.trim().replace(/[^\d.-]/g, ''));
 
-function discount(){
+    // Apply the discount
+    totalFare = totalFare * percentDiscount; // Adjust fare by percentDiscount
+
+    // Update the total fare display with the discounted value
+    totalFareContainer.textContent = `${totalFare.toFixed(1)}`; // Format as per your requirements
+}
+
+function discount() {
     const coupons = {'FL928K': 0.3, 'FL239D': 0.4, 'FL138S': 0.2};
-    let couponApplied = false;  // Flag to track if a coupon has been applied
-    let couponCodeApplied = ''; // Store the applied coupon code for removal
+
     // Get the value of the coupon input field
     const couponInput = document.querySelector('input[name="coupon"]');
     const couponCode = couponInput.value.trim();
@@ -141,14 +155,14 @@ function discount(){
         // Check if the coupon code exists in the coupons dictionary
         if (coupons[couponCode]) {
             const discount = coupons[couponCode];  // Get the discount value from the coupons dictionary
-
+            percentDiscount = 1 - discount;
             // Create a new HTML block for the coupon with a remove button
             const couponHtml = `
                 <div class="row surcharges" id="appliedCoupon">
                     <div class="surcharges-label">
                         Coupon: ${couponCode} | Discount: ${discount * 100}%
                     </div>
-                    <button type="button" id="removeCoupon" class="btn btn-danger btn-sm" style="margin-left: 10px;">Remove</button>
+                    <button type="button" class="removeCouponBtn btn btn-danger btn-sm" style="margin-left: 10px;">Remove</button>
                     <input type="hidden" name="coupon" value="${couponCode}">
                 </div>
             `;
@@ -166,25 +180,32 @@ function discount(){
             couponApplied = true;
             couponCodeApplied = couponCode;
 
-            // Disable the input field to prevent further coupon entry
+            // Disable the input field and the Apply button to prevent further coupon entry
             couponInput.disabled = true;
+            document.querySelector('#applyCoupon').disabled = true;
 
             // Add event listener to the remove button to allow the user to remove the coupon
-            document.querySelector('#removeCoupon').addEventListener('click', function () {
-                // Remove the coupon HTML block
-                const couponElement = document.querySelector('#appliedCoupon');
-                if (couponElement) {
-                    couponElement.remove();
-                }
+            const removeCouponBtn = document.querySelector('.removeCouponBtn');
+            if (removeCouponBtn) {
+                removeCouponBtn.addEventListener('click', function () {
+                    // Remove the coupon HTML block
+                    const couponElement = document.querySelector('#appliedCoupon');
+                    if (couponElement) {
+                        couponElement.remove();
+                    }
+                    percentDiscount = 1 /(1 - discount);
+                    updateTotalFare1();
+                    // Enable the input field and Apply button again for new coupon
+                    couponInput.disabled = false;
+                    document.querySelector('#applyCoupon').disabled = false;
 
-                // Enable the input field again for new coupon
-                couponInput.disabled = false;
-
-                // Reset the flag and allow the user to enter a new coupon
-                couponApplied = false;
-                couponCodeApplied = '';
-                couponInput.value = ''; // Clear the input field
-            });
+                    // Reset the flag and allow the user to enter a new coupon
+                    couponApplied = false;
+                    couponCodeApplied = '';
+                    couponInput.value = ''; // Clear the input field
+                });
+            }
+            updateTotalFare1();
         } else {
             alert('Invalid coupon code.');
             couponInput.value = ''; // Clear the input field so user can try again
@@ -193,3 +214,6 @@ function discount(){
         alert('Please enter a valid coupon code.');
     }
 }
+
+
+

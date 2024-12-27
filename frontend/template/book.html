@@ -41,11 +41,7 @@
             <div class="row main-row">
                 <div class="col-8">
                 <div class="ticket-details">
-                    <div class="row">
-                        <div class="col-8"> <h5>Ticket Details</h5></div>
-
-                        <div class="col-4 text-center"><button type="button" class="btn btn-primary btn-danger">Details</button></div>
-                    </div>
+                    <h5>Ticket Details</h5>
                     <hr>
                     <div class="media-airline">
                         <div>
@@ -124,7 +120,7 @@
     <!-- Button -->
     <div class="text-center col-4">
         <button type="button" class="btn btn-primary btn-danger" data-toggle="modal" data-target="#myModal">
-            Đặt vé
+            Buy Seat
         </button>
     </div>
 </div>
@@ -145,75 +141,62 @@
         <div class="modal-body">
           <div class="container">
             <div class="row">
-              <!-- Left Area -->
-              <div class="col-4">
-                <div class="area-title">Left Area</div>
-                <div class="area">
-                  <div class="seat" value="10">L1</div>
-                  <div class="seat" value="10">L2</div>
-                  <div class="seat" value="10">L3</div>
-                  <div class="seat" value="10">L4</div>
-                  <div class="seat" value="10">L5</div>
-                  <div class="seat" value="10">L6</div>
-                  <div class="seat" value="10">L7</div>
-                  <div class="seat" value="10">L8</div>
-                  <div class="seat" value="10">L9</div>
-                  <div class="seat" value="10">L10</div>
-                  <div class="seat" value="10">L11</div>
-                  <div class="seat" value="10">L12</div>
-                  <div class="seat" value="10">L13</div>
-                  <div class="seat" value="10">L14</div>
-                  <div class="seat" value="10">L15</div>
+                <!-- Left Area: First Class -->
+                <div class="col-4">
+                    <div class="area-title">First</div>
+                    <div class="area">
+                        {% for seat in seats %}
+                            {% if seat.type == 'first' %}
+                                {% if seat.status == 'SELECTED'%}
+                                    <div class="seat selected" value="{{ seat.price }}">{{ seat.seat_name }}</div>
+                                {% else%}
+                                    <div class="seat" value="{{ seat.price }}">{{ seat.seat_name }}</div>
+                                {% endif%}
+                                <input type="hidden"  value="{{seat.id}}">
+                            {% endif %}
+                        {% endfor %}
+                    </div>
                 </div>
-              </div>
 
-              <!-- Center Area -->
-              <div class="col-4">
-                <div class="area-title">Center Area</div>
-                <div class="area">
-                  <div class="seat">C1</div>
-                  <div class="seat">C2</div>
-                  <div class="seat">C3</div>
-                  <div class="seat">C4</div>
-                  <div class="seat">C5</div>
-                  <div class="seat">C6</div>
-                  <div class="seat">C7</div>
-                  <div class="seat">C8</div>
-                  <div class="seat">C9</div>
-                  <div class="seat">C10</div>
-                  <div class="seat">C11</div>
-                  <div class="seat">C12</div>
-                  <div class="seat">C13</div>
-                  <div class="seat">C14</div>
-                  <div class="seat">C15</div>
+                <!-- Center Area: Business Class -->
+                <div class="col-4">
+                    <div class="area-title">Business</div>
+                    <div class="area">
+                        {% for seat in seats %}
+                            {% if seat.type == 'business' %}
+                                {% if seat.status == 'SELECTED'%}
+                                    <div class="seat selected" value="{{ seat.price }}">{{ seat.seat_name }}</div>
+                                {% else%}
+                                    <div class="seat" value="{{ seat.price }}">{{ seat.seat_name }}</div>
+                                {% endif%}
+                                <input type="hidden"  value="{{seat.id}}">
+                            {% endif %}
+                        {% endfor %}
+                    </div>
                 </div>
-              </div>
 
-              <!-- Right Area -->
-              <div class="col-4">
-                <div class="area-title">Right Area</div>
-                <div class="area">
-                  <div class="seat">R1</div>
-                  <div class="seat">R2</div>
-                  <div class="seat">R3</div>
-                  <div class="seat">R4</div>
-                  <div class="seat">R5</div>
-                  <div class="seat">R6</div>
-                  <div class="seat">R7</div>
-                  <div class="seat">R8</div>
-                  <div class="seat">R9</div>
-                  <div class="seat">R10</div>
-                  <div class="seat">R11</div>
-                  <div class="seat">R12</div>
-                  <div class="seat">R13</div>
-                  <div class="seat">R14</div>
-                  <div class="seat">R15</div>
+                <!-- Right Area: Economy Class -->
+                <div class="col-4">
+                    <div class="area-title">Economy</div>
+                    <div class="area">
+                        {% for seat in seats %}
+                            {% if seat.type == 'economy' %}
+                               {% if seat.status == 'SELECTED'%}
+                                    <div class="seat selected" value="{{ seat.price }}">{{ seat.seat_name }}</div>
+                                {% else%}
+                                    <div class="seat" value="{{ seat.price }}">{{ seat.seat_name }}</div>
+                                {% endif%}
+                                <input type="hidden"  value="{{seat.id}}">
+                            {% endif %}
+                        {% endfor %}
+                    </div>
                 </div>
-              </div>
             </div>
-
             <!-- Legend -->
             <div class="legend">
+                <div class="legend-item">
+                <div class="seat selected" style="background-color: #fdeec3;"></div> <span>Your seat</span>
+              </div>
               <div class="legend-item">
                 <div class="seat selected"></div> <span>Selected</span>
               </div>
@@ -223,15 +206,16 @@
             </div>
           </div>
         </div>
-
-        <!-- Modal Footer -->
+       <!-- Modal Footer -->
         <div class="modal-footer">
-          <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-          <div id="count-display" class="ms-auto">
-            Money: <span id="count">0</span>
-          </div>
+            <div id="seat-notification" class="notification">
+                You can only choose once seat for all flights. Your selection is now final.
+            </div>
+             <div id="count-display" class="ms-auto">
+                Money: <span id="count">0</span>
+            </div>
+            <button type="button" class="btn btn-danger" data-dismiss="modal" >Close</button>
         </div>
-
       </div>
     </div>
                     </div>
@@ -471,7 +455,7 @@
                             </div>
                             <div class="col-3 ci">
                                 Mobile No
-                                <input type="number" name="mobile" class="form-control" placeholder="Mobile No" required>
+                                <input type="tel" pattern="[0-9]" name="mobile" class="form-control" placeholder="Mobile No" required>
                             </div>
                             <div class="col-6 ci">
                                 Email
@@ -579,6 +563,11 @@
                             <div class="surcharges-value">₹ <span>{{fee}}</span></div>
                             <input type="hidden" id="fee" value="{{fee}}">
                         </div>
+                        <div class="row surcharges" id="seatSelected">
+
+                        </div>
+                        <input type="hidden" id="chosenCount" name="seat_amount">
+
                         <hr>
                         <div class="total-fare">
                             <div class="total-fare-label">Total Fare: </div>
@@ -620,7 +609,7 @@
                             </div>
                             <div class="col coupon-apply" style="padding: 10px 10px 10px 0px">
                                 <center>
-                                   <button type="button" class="btn btn-primary btn-danger" name="useCoupon" value="executeCoupon" onclick="discount()">Apply</button>
+                                   <button type="button" class="btn btn-primary btn-danger" id="applyCoupon" name="useCoupon" value="executeCoupon" onclick="discount()">Apply</button>
                                 </center>
                             </div>
                         </div>
@@ -635,77 +624,181 @@
         </form>
     </section>
 <style>
-    .seat {
-    width: 40px;
-    height: 40px;
-    background-color: #DC4C64;
-    border-radius: 5px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 2px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-  }
-
-  .seat.selected {
-    background-color: #fdeec3;
-    cursor: not-allowed;
-  }
-
-  .seat.choose {
-    background-color: #fdeec3;
-  }
-
-  .area {
-    display: grid;
-    grid-template-columns: repeat(5, auto);
-    gap: 5px;
-    justify-content: center;
-  }
-
-  .area-title {
-    text-align: center;
-    margin-bottom: 10px;
+    .notification {
+    color: red;
     font-weight: bold;
-  }
+    margin-right: 10px; /* Align to the left side of the footer */
+    display: inline-block; /* Make it stay on the same line */
+}
+.seat {
+  width: 40px;
+  height: 40px;
+  background-color: #DC4C64; /* Default color for available seat */
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 2px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
 
-  .row-gap {
-    margin-top: 20px;
-  }
+/* Style for selected seat (after choosing) */
+.seat.selected {
+  background-color: #a9d1d9; /* Color for selected seat (chosen and reserved) */
+  cursor: not-allowed;
+}
 
-  .legend {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    margin-top: 20px;
-  }
+/* Style for chosen seat (before confirming selection) */
+.seat.choose {
+  background-color: #fdeec3; /* Color for currently choosing */
+}
 
-  .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
+/* Layout for area grid of seats */
+.area {
+  display: grid;
+  grid-template-columns: repeat(5, auto);
+  gap: 5px;
+  justify-content: center;
+}
 
-  .legend-item .seat {
-    width: 20px;
-    height: 20px;
-  }
+/* Title for each seat area */
+.area-title {
+  text-align: center;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+/* Gap between rows */
+.row-gap {
+  margin-top: 20px;
+}
+
+/* Styling the legend for seat status */
+.legend {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.legend-item .seat {
+  width: 20px;
+  height: 20px;
+}
 </style>
-  <script>
-    // Counter for selected seats
+<script>
     let selectedCount = 0;
+let amount_seat = 0;
+let previousTotalFare = parseFloat(document.querySelector('.total-fare-value span').textContent.replace(/[^\d.-]/g, ''));
+let previousSelectedSeats = [];  // Mảng lưu trữ các ghế đã chọn trước đó
 
-    // Add click event to all seats
-    document.querySelectorAll('.seat').forEach(seat => {
-      seat.addEventListener('click', () => {
-        if (!seat.classList.contains('selected')) {
-          seat.classList.toggle('choose');
-          let seatValue = parseInt(seat.getAttribute('value'));
-          selectedCount += seat.classList.contains('choose') ? seatValue : -seatValue;
-          document.getElementById('count').textContent = selectedCount;
+// Add click event to all seats
+document.querySelectorAll('.seat').forEach(seat => {
+  seat.addEventListener('click', () => {
+    let seatValue = parseInt(seat.getAttribute('value'));
+    const seatId = seat.nextElementSibling.value;
+    const seatPrice = parseFloat(seat.getAttribute('value'));
+
+    // Cập nhật trạng thái ghế
+    if (!seat.classList.contains('selected')) {
+      if (!seat.classList.contains('choose')) {
+        seat.classList.add('choose'); // Thêm lớp 'choose' nếu ghế được chọn
+        selectedCount += seatValue;
+        amount_seat += 1;
+      } else {
+        seat.classList.remove('choose'); // Loại bỏ lớp 'choose' nếu ghế bị bỏ chọn
+        selectedCount -= seatValue;
+        amount_seat -= 1;
+      }
+
+      // Cập nhật thông báo ghế đã chọn và tổng tiền
+      document.getElementById('count').textContent = selectedCount;
+      document.getElementById('chosenCount').value = amount_seat;
+
+      // Cập nhật input hidden cho ghế được chọn
+      const seatSelectedContainer = document.getElementById('seatSelected');
+      if (seat.classList.contains('choose')) {
+        const hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.name = `selectedSeat_${seatId}`;
+        hiddenInput.value = seatId;
+        seatSelectedContainer.appendChild(hiddenInput);
+      } else {
+        // Loại bỏ input hidden nếu ghế bị bỏ chọn
+        const hiddenInput = seatSelectedContainer.querySelector(`input[value='${seatId}']`);
+        if (hiddenInput) {
+          seatSelectedContainer.removeChild(hiddenInput);
         }
-      });
-    });
-  </script>
+      }
+
+      // Cập nhật lại tổng tiền
+      updateTotalFare();
+    }
+  });
+});
+
+// Hàm cập nhật tổng tiền khi ghế thay đổi
+function updateTotalFare() {
+  const seatSelectedContainer = document.getElementById('seatSelected');
+  const totalFareContainer = document.querySelector('.total-fare-value');
+
+  // Lấy giá trị tổng tiền hiện tại từ giao diện
+  let totalFare = previousTotalFare;
+  let currentSelectedSeats = []; // Mảng lưu trữ các ghế hiện tại được chọn
+
+  seatSelectedContainer.innerHTML = ''; // Clear existing content
+
+  // Add the "Seat & Surcharges:" label
+  let surchargeLabelDiv = document.createElement('div');
+  surchargeLabelDiv.classList.add('surcharges-label');
+  surchargeLabelDiv.textContent = 'Seat & Surcharges:';
+  seatSelectedContainer.appendChild(surchargeLabelDiv);
+
+  let countSeat = 1;
+  // Loop through all selected seats and add their price to totalFare
+  document.querySelectorAll('.seat.choose').forEach(seat => {
+    const seatId = seat.nextElementSibling.value;
+    const seatName = seat.textContent;
+    let seatPrice = parseFloat(seat.getAttribute('value'));
+    // Add seat to currentSelectedSeats array
+    if (!currentSelectedSeats.includes(seatId)) {
+      currentSelectedSeats.push(seatId);
+
+      // Create hidden input for selected seat
+      const hiddenInput = document.createElement('input');
+      hiddenInput.type = 'hidden';
+      hiddenInput.name = `selectedSeat_${countSeat}`;
+      hiddenInput.value = seatId;
+      seatSelectedContainer.appendChild(hiddenInput);
+
+      // Create surcharge value div for the seat
+      const surchargeValueDiv = document.createElement('div');
+      surchargeValueDiv.classList.add('surcharges-value');
+      surchargeValueDiv.innerHTML = `${seatName} - ₹<span>${seatPrice*percentDiscount}</span>`;
+      seatSelectedContainer.appendChild(surchargeValueDiv);
+
+      totalFare += seatPrice;
+
+      // Increment seat count
+      countSeat++;
+    }
+  });
+
+  // Update previousSelectedSeats with current selection for future comparison
+  totalFare = totalFare * percentDiscount;
+  // Update the total fare in the UI
+  totalFareContainer.innerHTML = `₹ <span>${totalFare.toFixed(1)}</span>`;
+
+  // Update the seat count
+  document.getElementById('chosenCount').value = currentSelectedSeats.length;
+}
+
+</script>
 {% endblock %}
