@@ -8,6 +8,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from datetime import datetime
 import math
+
+from payment.models import Seat
 from .models import *
 from .constant import FEE
 
@@ -36,20 +38,55 @@ def flight(request):
     flightday = Week.objects.get(number=depart_date.weekday())
     destination = Place.objects.get(code=d_place.upper())
     origin = Place.objects.get(code=o_place.upper())
-    if seat == 'economy':
 
-        # flights = Flight.objects.filter(depart_day=flightday,origin= origin.pk, destination=destination.pk).exclude(
-        #     economy_fare=0).order_by('economy_fare')
-        flights = Flight.objects.filter(depart_day=flightday, destination=destination.pk).exclude(
-            economy_fare=0).order_by('economy_fare')
-        # l = [fl.origin for fl in flights if fl.origin != origin]
-        # flights = Flight.objects.filter(
-        #     depart_day=flightday,
-        #     origin=origin,
-        #     destination__in=l
-        # ).exclude(
-        #     economy_fare=0
-        # ).order_by('economy_fare')
+    if seat == 'economy':
+        # lấy chuyến bay thẳng
+        flights = Flight.objects.filter(
+            depart_day=flightday,
+            origin=origin.pk,
+            destination=destination.pk
+        ).exclude(
+            economy_fare=0
+        )
+
+        # chuyến bay có thể tới điểm đích
+        flights_sts = Flight.objects.filter(
+            depart_day=flightday,
+            destination=destination.pk
+        ).exclude(
+            economy_fare=0
+        )
+
+        # Collect intermediate stop points
+        l = [fl.origin for fl in flights_sts if fl.origin != origin]
+
+        # Chuyến bay có thể đi từ điểm đầu đến điểm trung gian
+        flights_stt = Flight.objects.filter(
+            depart_day=flightday,
+            origin=origin,
+            destination__in=l
+        ).exclude(
+            economy_fare=0
+        )
+        # lấy những chuyến bay hợp lệ chỉ lấy 5 cái bay thẳng và 3 cái có nối chuyến (gồm 2 chuyến nhỏ)
+        valid_flight = []
+        for fl in flights:
+            valid_flight.append(fl)
+            if len(valid_flight) == 5:
+                break
+        check = {origin.code}
+        for fl in flights_stt:
+            if len(valid_flight) >= 10:
+                break
+            for fl1 in flights_sts:
+                if fl.destination == fl1.origin and fl.arrival_time < fl1.depart_time:
+                    if not check.__contains__(fl.destination):
+                        valid_flight.append(fl)
+                        valid_flight.append(fl1)
+                        check.add(fl.destination)
+
+        # Combine all QuerySets (order_by is applied only after union)
+        # flights = flights.union(flights_sts).union(flights_stt).order_by('economy_fare')
         try:
             max_price = flights.last().economy_fare
             min_price = flights.first().economy_fare
@@ -127,7 +164,7 @@ def flight(request):
         })
     else:
         return render(request, "search.html", {
-            'flights': flights,
+            'flights': valid_flight,
             'origin': origin,
             'destination': destination,
             'seat': seat.capitalize(),
@@ -144,6 +181,7 @@ def review(request):
     date1 = request.GET.get('flight1Date')
     seat = request.GET.get('seatClass')
     round_trip = False
+    print(flight_1)
     if request.GET.get('flight2Id'):
         round_trip = True
 
@@ -159,6 +197,7 @@ def review(request):
         flight2 = None
         flight2ddate = None
         flight2adate = None
+        seats = Seat.objects.filter(flight=flight1)
         if round_trip:
             flight2 = Flight.objects.get(id=flight_2)
             flight2ddate = datetime(int(date2.split('-')[2]), int(date2.split('-')[1]), int(date2.split('-')[0]),
@@ -176,6 +215,7 @@ def review(request):
                 "fee": FEE,
             })
         return render(request, "book.html", {
+            'seats': seats,
             'flight1': flight1,
             "flight1ddate": flight1ddate,
             "flight1adate": flight1adate,

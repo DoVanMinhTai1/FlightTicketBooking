@@ -31,7 +31,7 @@ def payment_view(request):
                 ticket2_id = request.POST.get('ticket2')
             try:
                 ticket = Ticket.objects.get(id=ticket1_id)
-                ticket.status = 'PENDING'
+                ticket.status = 'CANCELLED'
                 ticket.booking_date = datetime.now()
                 tics = {'ticket1': ticket1_id,
                         'fare': fare}
@@ -45,11 +45,11 @@ def payment_view(request):
                     expYear=expYear,
                     cvv=cvv,
                     ticket_id=ticket,
-                    status='PENDING',
+                    status='CANCELLED',
                 )
                 if t2:
                     ticket2 = Ticket.objects.get(id=ticket2_id)
-                    ticket2.status = 'PENDING'
+                    ticket2.status = 'CANCELLED'
                     ticket2.booking_date = datetime.now()
                     ticket2.save()
                     tics = {'ticket1': ticket1_id,
@@ -207,7 +207,7 @@ def createticket(user,passengers,passengerscount,flight1,flight_1date,flight_1cl
         ticket.coupon_used = coupon                     ##########Coupon
     ticket.total_fare = ffre+FEE+0.0                    ##########Total(Including coupon)
     ticket.seat_class = flight_1class.lower()
-    ticket.status = 'PENDING'
+    ticket.status = 'CANCELLED'
     ticket.mobile = ('+'+countrycode+' '+mobile)
     ticket.email = email
     return ticket
