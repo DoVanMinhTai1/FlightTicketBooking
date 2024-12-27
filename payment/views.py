@@ -218,8 +218,7 @@ def createticket(user,passengers,passengerscount,flight1,flight_1date,flight_1cl
 def show_seats(request, flight_id):
     flight = get_object_or_404(Flight, id=flight_id)
     seats = Seat.objects.filter(flight=flight)
-    # Trả về dữ liệu ghế và chuyến bay
-    return render(request, 'payment/show_seats.html', {
-        'flight': flight,
-        'seats': seats
+    return render(request, 'book.html', {
+        'flight': flight,  
+        'seats': seats     
     })
