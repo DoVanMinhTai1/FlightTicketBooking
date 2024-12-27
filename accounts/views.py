@@ -7,6 +7,8 @@ from django.http import HttpResponse
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login,logout
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth import update_session_auth_hash
 from frontend import template
 # Create your views here.
 def login_view(request):
@@ -46,3 +48,33 @@ def home_view(request):
 def logout_view(request):
     logout(request)
     return redirect('login')
+
+def reset_password(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        old_password = request.POST.get('old_password')
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+
+        if not (username and old_password and new_password and confirm_password):
+            messages.error(request, 'Vui lòng nhập đầy đủ thông tin.')
+            return render(request, 'reset-pass.html')
+        
+        user = authenticate(request, username=username, password=old_password)
+
+        if user is not None:
+            if new_password == confirm_password:
+                try:
+                    user.set_password(new_password)
+                    user.save()
+
+                    messages.success(request, 'Password has been successfully changed. Please log in again with the new password!')
+                    return redirect('login')  
+                except Exception as e:
+                    messages.error(request, f'Có lỗi xảy ra: {str(e)}')
+            else:
+                messages.error(request, 'New password and confirmation password do not match!')
+        else:
+            messages.error(request, 'Username or old password is incorrect!')
+
+    return render(request, 'reset-pass.html')
