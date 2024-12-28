@@ -110,7 +110,6 @@ def book(request):
                 f2 = True
             if len(mobile) != 10:
                 messages.warning(request, 'Mobile must be 10 digits')
-
                 seat = request.POST.get('seat')
                 mes = {
                     'flight1': flight1,

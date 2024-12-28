@@ -73,6 +73,11 @@
                             <div class="airport">{{flight1.destination.airport}}</div>
                         </div>
                     </div>
+                    <div class="text-end">
+                        <button type="button" class="btn btn-primary btn-danger" data-toggle="modal" data-target="#myModal">
+                            Buy Seat
+                        </button>
+                    </div>
                     {% if flight2 %}
                         <!--Round Trip-->
                         <div style="padding: 0 15px;" class="round-seperator"><hr style="border-top: 0.5px dashed rgba(0,0,0,.1);"></div>
@@ -107,6 +112,11 @@
                                 <div class="airport">{{flight2.destination.airport}}</div>
                             </div>
                         </div>
+                        <div class="text-end">
+                            <button type="button" class="btn btn-primary btn-danger" data-toggle="modal" data-target="#myModal1">
+                                Buy Seat
+                            </button>
+                        </div>
                     {% endif %}
                     <hr>
                    <div class="row">
@@ -117,12 +127,7 @@
         </svg>
         30 Kgs Check-in, 7 Kgs Cabin
     </div>
-    <!-- Button -->
-    <div class="text-center col-4">
-        <button type="button" class="btn btn-primary btn-danger" data-toggle="modal" data-target="#myModal">
-            Buy Seat
-        </button>
-    </div>
+
 </div>
   <!-- Modal -->
   <div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -131,7 +136,7 @@
 
         <!-- Modal Header -->
         <div class="modal-header">
-          <h5 class="modal-title" id="myModalLabel">Flight Seat Map</h5>
+          <h5 class="modal-title" id="myModalLabel">Flight Seat Map: First Flight - From {{flight1.origin.city}} To {{flight1.destination.city}}</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -145,7 +150,7 @@
                 <div class="col-4">
                     <div class="area-title">First</div>
                     <div class="area">
-                        {% for seat in seats %}
+                        {% for seat in seats1 %}
                             {% if seat.type == 'first' %}
                                 {% if seat.status == 'SELECTED'%}
                                     <div class="seat selected" value="{{ seat.price }}">{{ seat.seat_name }}</div>
@@ -162,7 +167,7 @@
                 <div class="col-4">
                     <div class="area-title">Business</div>
                     <div class="area">
-                        {% for seat in seats %}
+                        {% for seat in seats1 %}
                             {% if seat.type == 'business' %}
                                 {% if seat.status == 'SELECTED'%}
                                     <div class="seat selected" value="{{ seat.price }}">{{ seat.seat_name }}</div>
@@ -179,7 +184,7 @@
                 <div class="col-4">
                     <div class="area-title">Economy</div>
                     <div class="area">
-                        {% for seat in seats %}
+                        {% for seat in seats1 %}
                             {% if seat.type == 'economy' %}
                                {% if seat.status == 'SELECTED'%}
                                     <div class="seat selected" value="{{ seat.price }}">{{ seat.seat_name }}</div>
@@ -219,6 +224,103 @@
       </div>
     </div>
                     </div>
+                    {% if flight2 %}
+                      <!-- Modal -->
+  <div class="modal fade" id="myModal1" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h5 class="modal-title" id="myModalLabel1">Flight Seat Map: Second Flight - From {{flight2.origin.city}} To {{flight2.destination.city}}</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="modal-body">
+          <div class="container">
+            <div class="row">
+                <!-- Left Area: First Class -->
+                <div class="col-4">
+                    <div class="area-title">First</div>
+                    <div class="area">
+                        {% for seat in seats2 %}
+                            {% if seat.type == 'first' %}
+                                {% if seat.status == 'SELECTED'%}
+                                    <div class="seat selected" value="{{ seat.price }}">{{ seat.seat_name }}</div>
+                                {% else%}
+                                    <div class="seat" value="{{ seat.price }}">{{ seat.seat_name }}</div>
+                                {% endif%}
+                                <input type="hidden"  value="{{seat.id}}">
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Center Area: Business Class -->
+                <div class="col-4">
+                    <div class="area-title">Business</div>
+                    <div class="area">
+                        {% for seat in seats2 %}
+                            {% if seat.type == 'business' %}
+                                {% if seat.status == 'SELECTED'%}
+                                    <div class="seat selected" value="{{ seat.price }}">{{ seat.seat_name }}</div>
+                                {% else%}
+                                    <div class="seat" value="{{ seat.price }}">{{ seat.seat_name }}</div>
+                                {% endif%}
+                                <input type="hidden"  value="{{seat.id}}">
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Right Area: Economy Class -->
+                <div class="col-4">
+                    <div class="area-title">Economy</div>
+                    <div class="area">
+                        {% for seat in seats2 %}
+                            {% if seat.type == 'economy' %}
+                               {% if seat.status == 'SELECTED'%}
+                                    <div class="seat selected" value="{{ seat.price }}">{{ seat.seat_name }}</div>
+                                {% else%}
+                                    <div class="seat" value="{{ seat.price }}">{{ seat.seat_name }}</div>
+                                {% endif%}
+                                <input type="hidden"  value="{{seat.id}}">
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <!-- Legend -->
+            <div class="legend">
+                <div class="legend-item">
+                <div class="seat selected" style="background-color: #fdeec3;"></div> <span>Your seat</span>
+              </div>
+              <div class="legend-item">
+                <div class="seat selected"></div> <span>Selected</span>
+              </div>
+              <div class="legend-item">
+                <div class="seat selected" style="background-color: #DC4C64;"></div> <span>Available</span>
+              </div>
+            </div>
+          </div>
+        </div>
+       <!-- Modal Footer -->
+        <div class="modal-footer">
+            <div id="seat-notification" class="notification">
+                You can only choose once seat for all flights. Your selection is now final.
+            </div>
+             <div id="count-display" class="ms-auto">
+                Money: <span id="count">0</span>
+            </div>
+            <button type="button" class="btn btn-danger" data-dismiss="modal" >Close</button>
+        </div>
+      </div>
+    </div>
+                    </div>
+                    {% endif%}
                 </div>
                 <div class="traveller-details">
                     <div class="traveller-head">

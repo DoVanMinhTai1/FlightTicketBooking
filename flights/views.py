@@ -8,6 +8,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from datetime import datetime
 import math
+
+from payment.models import Seat
 from .models import *
 from .constant import FEE
 import logging
@@ -74,7 +76,6 @@ def flight(request):
             valid_flight.append(fl)
             if len(valid_flight) == 5:
                 break
-        count = 0
         check = {origin.code}
         for fl in flights_stt:
             if len(valid_flight) >= 10:
@@ -236,6 +237,8 @@ def review(request):
                 "flight2ddate": flight2ddate,
                 "flight2adate": flight2adate,
                 "seat": seat,
+                'seats1': Seat.objects.filter(flight=flight1.pk),
+                'seats2': Seat.objects.filter(flight=flight2.pk),
                 "fee": FEE,
             })
         return render(request, "book.html", {
@@ -243,7 +246,8 @@ def review(request):
             "flight1ddate": flight1ddate,
             "flight1adate": flight1adate,
             "seat": seat,
-            "fee": FEE
+            "fee": FEE,
+            'seats1': Seat.objects.filter(flight=flight1.pk),
         })
     else:
         return HttpResponseRedirect(reverse("login"))
