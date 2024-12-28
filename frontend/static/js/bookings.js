@@ -31,3 +31,28 @@ function cancel_tkt() {
         }
     });
 }
+
+let timeLeft = 60; // thời gian đếm ngược
+function startCountdown() {
+    const timerDisplay = document.getElementById('countdown');
+    function updateTimer() {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        timerDisplay.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+
+        if (timeLeft > 0) {
+            timeLeft--;
+        } else {
+            clearInterval(interval);
+
+            document.querySelector(` .ticket-action-div`).innerHTML = '';
+            document.querySelector(` .status-div`).innerHTML = `<div class="red">CANCELLED</div>`;
+            document.querySelector(` .booking-date-div`).innerHTML = '';
+        }
+    }
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+}
+
+window.onload = startCountdown;
+

@@ -61,6 +61,10 @@
                                     {% endif %}
                                     {% if ticket.status == 'PENDING' %}
                                         Reviewed on: {{ticket.booking_date | date:"D, M d Y"}}
+                                        <span style="color: #007bff">
+                                            Booking time remaining
+                                            <span id="countdown">20:00</span>
+                                        </span>
                                     {% endif %}
                                     {% if ticket.status == 'CANCELLED' %}
                                     {% endif %}
