@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from datetime import datetime
 import math
-
+from . import handler
 from payment.models import Seat
 from .models import *
 from .constant import FEE
@@ -39,7 +39,9 @@ def flight(request):
     flightday = Week.objects.get(number=depart_date.weekday())
     destination = Place.objects.get(code=d_place.upper())
     origin = Place.objects.get(code=o_place.upper())
-
+    intermediate_flights = []
+    intermediate_flights2 = []
+    flights = None
     if seat == 'economy':
         # lấy chuyến bay thẳng
         flights = Flight.objects.filter(
@@ -49,70 +51,6 @@ def flight(request):
         ).exclude(
             economy_fare=0
         )
-
-        # chuyến bay có thể tới điểm đích
-        flights_sts = Flight.objects.filter(
-            depart_day=flightday,
-            destination=destination.pk
-        ).exclude(
-            economy_fare=0
-        )
-
-        # Collect intermediate stop points
-        l = [fl.origin for fl in flights_sts if fl.origin != origin]
-
-        # Chuyến bay có thể đi từ điểm đầu đến điểm trung gian
-        flights_stt = Flight.objects.filter(
-            depart_day=flightday,
-            origin=origin,
-            destination__in=l
-        ).exclude(
-            economy_fare=0
-        )
-        # lấy những chuyến bay hợp lệ chỉ lấy 5 cái bay thẳng và 3 cái có nối chuyến (gồm 2 chuyến nhỏ)
-        valid_flight = []
-        intermediate_flights = []
-        for fl in flights:
-            valid_flight.append(fl)
-            if len(valid_flight) == 5:
-                break
-        check = {origin.code}
-        for fl in flights_stt:
-            if len(valid_flight) >= 10:
-                break
-            for fl1 in flights_sts:
-                if fl.destination == fl1.origin and fl.arrival_time < fl1.depart_time:
-                    if not check.__contains__(fl.destination):
-                        today = datetime.today().date()
-                        arrival_datetime = datetime.combine(today, fl.arrival_time)
-                        departure_datetime = datetime.combine(today, fl1.depart_time)
-                        waiting_time = departure_datetime - arrival_datetime
-                        valid_flight.append(fl)
-                        valid_flight.append(fl1)
-                        intermediate_flights.append((fl, fl1,waiting_time))
-                        print(f"Added intermediate flights: {fl} -> {fl1}")
-                        check.add(fl.destination)
-
-        # Combine all QuerySets (order_by is applied only after union)
-        # flights = flights.union(flights_sts).union(flights_stt).order_by('economy_fare')
-       
-        print("Final list of valid flights:")
-        for vf in valid_flight:
-            print(vf)
-
-            print("\nList of intermediate flights:")
-        for pair in intermediate_flights:
-            print(f"From {pair[0]} to {pair[1]}")
-        print("\n--- Intermediate Flights ---")
-        if intermediate_flights:
-            for idx, (fl1, fl2,waiting_time) in enumerate(intermediate_flights, start=1):
-                print(f"Intermediate Flight {idx}:")
-                print(f"  From {fl1.origin} to {fl1.destination}, Departure: {fl1.depart_time}, Arrival: {fl1.arrival_time}")
-                print(f"  Connecting to {fl2.origin} to {fl2.destination}, Departure: {fl2.depart_time}, Arrival: {fl2.arrival_time}")
-                print(f"  Waiting Time: {waiting_time}")
-        else:
-            print("No intermediate flights available.")
-
         try:
             max_price = flights.last().economy_fare
             min_price = flights.first().economy_fare
@@ -129,7 +67,7 @@ def flight(request):
             except:
                 max_price2 = 0  ##
                 min_price2 = 0  ##
-
+            intermediate_flights2 = handler.find_intermediate_flights(flights2,flightday2, origin2, destination2).get('intermediate_flights')
     elif seat == 'business':
         flights = Flight.objects.filter(depart_day=flightday, origin=origin, destination=destination).exclude(
             business_fare=0).order_by('business_fare')
@@ -149,6 +87,8 @@ def flight(request):
             except:
                 max_price2 = 0  ##
                 min_price2 = 0  ##
+            intermediate_flights2 = handler.find_intermediate_flights(flights2, flightday2, origin2,
+                                                                               destination2).get('intermediate_flights')
 
     elif seat == 'first':
         flights = Flight.objects.filter(depart_day=flightday, origin=origin, destination=destination).exclude(
@@ -169,7 +109,9 @@ def flight(request):
             except:
                 max_price2 = 0  ##
                 min_price2 = 0  ##    ##
-       
+            intermediate_flights2 = handler.find_intermediate_flights(flights2, flightday2, origin2,
+                                                                               destination2).get('intermediate_flights')
+    intermediate_flights = handler.find_intermediate_flights(flights,flightday, origin, destination).get('intermediate_flights')
     # print(calendar.day_name[depart_date.weekday()])
     if trip_type == '2':
         return render(request, "search.html", {
@@ -187,11 +129,12 @@ def flight(request):
             'min_price': math.floor(min_price / 100) * 100,
             'max_price2': math.ceil(max_price2 / 100) * 100,  ##
             'min_price2': math.floor(min_price2 / 100) * 100,
-            'intermediate_flights': intermediate_flights
+            'intermediate_flights': intermediate_flights,
+            'intermediate_flights2': intermediate_flights2
         })
     else:
         return render(request, "search.html", {
-            'flights': valid_flight,
+            'flights': flights,
             'origin': origin,
             'destination': destination,
             'seat': seat.capitalize(),
@@ -204,50 +147,193 @@ def flight(request):
         })
 
 def review(request):
-    flight_1 = request.GET.get('flight1Id')
-    date1 = request.GET.get('flight1Date')
-    seat = request.GET.get('seatClass')
-    round_trip = False
-    if request.GET.get('flight2Id'):
-        round_trip = True
-
-    if round_trip:
-        flight_2 = request.GET.get('flight2Id')
-        date2 = request.GET.get('flight2Date')
-
     if request.user.is_authenticated:
-        flight1 = Flight.objects.get(id=flight_1)
-        flight1ddate = datetime(int(date1.split('-')[2]), int(date1.split('-')[1]), int(date1.split('-')[0]),
-                                flight1.depart_time.hour, flight1.depart_time.minute)
-        flight1adate = (flight1ddate + flight1.duration)
-        flight2 = None
-        flight2ddate = None
-        flight2adate = None
-        if round_trip:
-            flight2 = Flight.objects.get(id=flight_2)
-            flight2ddate = datetime(int(date2.split('-')[2]), int(date2.split('-')[1]), int(date2.split('-')[0]),
-                                    flight2.depart_time.hour, flight2.depart_time.minute)
-            flight2adate = (flight2ddate + flight2.duration)
-        if round_trip:
-            return render(request, "book.html", {
-                'flight1': flight1,
-                'flight2': flight2,
-                "flight1ddate": flight1ddate,
-                "flight1adate": flight1adate,
-                "flight2ddate": flight2ddate,
-                "flight2adate": flight2adate,
-                "seat": seat,
-                'seats1': Seat.objects.filter(flight=flight1.pk),
-                'seats2': Seat.objects.filter(flight=flight2.pk),
-                "fee": FEE,
-            })
-        return render(request, "book.html", {
-            'flight1': flight1,
-            "flight1ddate": flight1ddate,
-            "flight1adate": flight1adate,
-            "seat": seat,
-            "fee": FEE,
-            'seats1': Seat.objects.filter(flight=flight1.pk),
-        })
+        if request.GET.get('tripType') == '1':
+            if request.GET.get('stop') == 'yes':
+                # Xử lý cho chuyến bay cho nối chuyến
+                flight0Id = request.GET.get('flight.0.id')
+                flight1Id = request.GET.get('flight.1.id')
+                flight0Date = request.GET.get('flight.0.date')
+                flight1Date = request.GET.get('flight.1.date')
+                seat = request.GET.get('seatClass')
+                connecting = handler.connecting_flights(flight0Id, flight1Id, flight0Date, flight1Date)
+                return render(request, "book.html", {
+                        'flight0': connecting.get('flight0'),
+                        'flight1': connecting.get('flight1'),
+                        'flight0adate': connecting.get('flight0adate'),
+                        'flight0ddate': connecting.get('flight0ddate'),
+                        "flight1ddate": connecting.get('flight1ddate'),
+                        "flight1adate": connecting.get('flight1adate'),
+                        "seat": seat,
+                        "fee": FEE,
+                        'seats1': Seat.objects.filter(flight=connecting.get('flight0').pk),
+                        'stop': 'yes',
+                        'tripType': '1',
+                    })
+            if request.GET.get('stop') == 'no':
+                #Xử lý cho chuyến bay không nối chuyến vẫn giữ nguyên
+                flight_1 = request.GET.get('flight1Id')
+                date1 = request.GET.get('flight1Date')
+                seat = request.GET.get('seatClass')
+                flight1 = Flight.objects.get(id=flight_1)
+                flight1ddate = datetime(int(date1.split('-')[2]), int(date1.split('-')[1]), int(date1.split('-')[0]),
+                                        flight1.depart_time.hour, flight1.depart_time.minute)
+                flight1adate = (flight1ddate + flight1.duration)
+                return render(request, "book.html", {
+                    'flight1': flight1,
+                    "flight1ddate": flight1ddate,
+                    "flight1adate": flight1adate,
+                    "seat": seat,
+                    "fee": FEE,
+                    'tripType': '1',
+                    'stop': 'no',
+                    'seats1': Seat.objects.filter(flight=flight1.pk),
+                })
+        else:
+            stop1 = request.GET.get('stop1')
+            stop2 = request.GET.get('stop2')
+            re = {'tripType': '2'}
+            # Xử lý cho chuyến bay cho nối chuyến
+            if stop1 =='yes':
+                flightId = request.GET.get('flight1Id')
+                flight0Id = flightId.split(',')[0]
+                flight1Id = flightId.split(',')[1]
+                flight0Date = request.GET.get('flight.0.date')
+                flight1Date = request.GET.get('flight.1.date')
+                seat = request.GET.get('seatClass')
+                connecting = handler.connecting_flights(flight0Id, flight1Id, flight0Date, flight1Date)
+                re.update({
+                        'flight0': connecting.get('flight0'),
+                        'flight1': connecting.get('flight1'),
+                        'flight0adate': connecting.get('flight0adate'),
+                        'flight0ddate': connecting.get('flight0ddate'),
+                        "flight1ddate": connecting.get('flight1ddate'),
+                        "flight1adate": connecting.get('flight1adate'),
+                        "seat": seat,
+                        "fee": FEE,
+                        'seats1': Seat.objects.filter(flight=connecting.get('flight0').pk),
+                        'stop1': 'yes',
+                    })
+            if stop2 =='yes':
+                flightId = request.GET.get('flight2Id')
+                flight0Id = flightId.split(',')[0]
+                flight1Id = flightId.split(',')[1]
+                flight0Date = request.GET.get('flight.2.date')
+                flight1Date = request.GET.get('flight.3.date')
+                seat = request.GET.get('seatClass')
+                connecting = handler.connecting_flights(flight0Id, flight1Id, flight0Date, flight1Date)
+                re.update({
+                    'flight2': connecting.get('flight0'),
+                    'flight3': connecting.get('flight1'),
+                    'flight2adate': connecting.get('flight0adate'),
+                    'flight2ddate': connecting.get('flight0ddate'),
+                    "flight3ddate": connecting.get('flight1ddate'),
+                    "flight3adate": connecting.get('flight1adate'),
+                    "seat": seat,
+                    "fee": FEE,
+                    'seats2': Seat.objects.filter(flight=connecting.get('flight0').pk),
+                    'stop2': 'yes'
+                })
+            if stop1 =='yes' and stop2 =='yes':
+                return render(request, "book.html", re)
+            if stop1 =='no' and stop2 =='no':
+                # Xử lý cho chuyến bay không nối chuyến vẫn giữ nguyên
+                flight_1 = request.GET.get('flight1Id')
+                date1 = request.GET.get('flight1Date')
+                seat = request.GET.get('seatClass')
+                round_trip = False
+                if request.GET.get('flight2Id'):
+                    round_trip = True
+
+                if round_trip:
+                    flight_2 = request.GET.get('flight2Id')
+                    date2 = request.GET.get('flight2Date')
+
+                flight1 = Flight.objects.get(id=flight_1)
+                flight1ddate = datetime(int(date1.split('-')[2]), int(date1.split('-')[1]),
+                                        int(date1.split('-')[0]),
+                                        flight1.depart_time.hour, flight1.depart_time.minute)
+                flight1adate = (flight1ddate + flight1.duration)
+                flight2 = None
+                flight2ddate = None
+                flight2adate = None
+                if round_trip:
+                    flight2 = Flight.objects.get(id=flight_2)
+                    flight2ddate = datetime(int(date2.split('-')[2]), int(date2.split('-')[1]),
+                                            int(date2.split('-')[0]),
+                                            flight2.depart_time.hour, flight2.depart_time.minute)
+                    flight2adate = (flight2ddate + flight2.duration)
+                if round_trip:
+                    return render(request, "book.html",{
+                        'flight1': flight1,
+                        'flight2': flight2,
+                        "flight1ddate": flight1ddate,
+                        "flight1adate": flight1adate,
+                        "flight2ddate": flight2ddate,
+                        "flight2adate": flight2adate,
+                        "seat": seat,
+                        'seats1': Seat.objects.filter(flight=flight1.pk),
+                        'seats2': Seat.objects.filter(flight=flight2.pk),
+                        "fee": FEE,
+                        'tripType': '2',
+                        'stop1': 'no',
+                        'stop2': 'no',
+                    })
+                return render(request, "book.html", {
+                    'flight1': flight1,
+                    "flight1ddate": flight1ddate,
+                    "flight1adate": flight1adate,
+                    "seat": seat,
+                    "fee": FEE,
+                    'seats1': Seat.objects.filter(flight=flight1.pk),
+                    'tripType': '2',
+                    'stop1': 'no',
+                })
+            if stop2 =='no':
+                seat = request.GET.get('seatClass')
+                round_trip = False
+                if request.GET.get('flight2Id'):
+                    round_trip = True
+                if round_trip:
+                    flight_2 = request.GET.get('flight2Id')
+                    date2 = request.GET.get('flight2Date')
+                flight2 = None
+                flight2ddate = None
+                flight2adate = None
+                if round_trip:
+                    flight2 = Flight.objects.get(id=flight_2)
+                    flight2ddate = datetime(int(date2.split('-')[2]), int(date2.split('-')[1]),
+                                            int(date2.split('-')[0]),
+                                            flight2.depart_time.hour, flight2.depart_time.minute)
+                    flight2adate = (flight2ddate + flight2.duration)
+                if round_trip:
+                    re.update({
+                        'flight2': flight2,
+                        "flight2ddate": flight2ddate,
+                        "flight2adate": flight2adate,
+                        "seat": seat,
+                        'seats2': Seat.objects.filter(flight=flight2.pk),
+                        "fee": FEE,
+                        'stop1': 'no',
+                        'stop2': 'no',
+                    })
+            if stop1 == 'no':
+                flight_1 = request.GET.get('flight1Id')
+                date1 = request.GET.get('flight1Date')
+                seat = request.GET.get('seatClass')
+                flight1 = Flight.objects.get(id=flight_1)
+                flight1ddate = datetime(int(date1.split('-')[2]), int(date1.split('-')[1]), int(date1.split('-')[0]),
+                                        flight1.depart_time.hour, flight1.depart_time.minute)
+                flight1adate = (flight1ddate + flight1.duration)
+                re.update({
+                    'flight1': flight1,
+                    "flight1ddate": flight1ddate,
+                    "flight1adate": flight1adate,
+                    "seat": seat,
+                    "fee": FEE,
+                    'seats1': Seat.objects.filter(flight=flight1.pk),
+                    'stop1': 'no',
+                })
+            return render(request, "book.html", re)
     else:
         return HttpResponseRedirect(reverse("login"))

@@ -1,4 +1,3 @@
-
 /* khi trang html được tải xong thì sẽ gọi một số hàm để khởi tạo hành động
 - flight_duration: hiện thị thời gian chuyến bay
 - filter_price: áp dụng bộ lọc giá 
@@ -112,8 +111,7 @@ function arrival_slot(flights, start, end) {
                 //flights[i].style.display = 'block';
                 flights[i].classList.add('show');
                 flights[i].classList.remove('hide');
-            }
-            else {
+            } else {
                 //flights[i].style.display = 'none';
                 flights[i].classList.add('hide');
                 flights[i].classList.remove('show');
@@ -121,6 +119,7 @@ function arrival_slot(flights, start, end) {
         }
     }
 }
+
 function departure_slot(flights, start, end) {
     if (flights) {
         for (let i = 0; i < flights.length; i++) {
@@ -129,8 +128,7 @@ function departure_slot(flights, start, end) {
                 //flights[i].style.display = 'block';
                 flights[i].classList.add('show');
                 flights[i].classList.remove('hide');
-            }
-            else {
+            } else {
                 //flights[i].style.display = 'none';
                 flights[i].classList.add('hide');
                 flights[i].classList.remove('show');
@@ -148,8 +146,7 @@ function arrival_slot2(flights, start, end) {
                 //flights[i].style.display = 'block';
                 flights[i].classList.add('show');
                 flights[i].classList.remove('hide');
-            }
-            else {
+            } else {
                 //flights[i].style.display = 'none';
                 flights[i].classList.add('hide');
                 flights[i].classList.remove('show');
@@ -157,6 +154,7 @@ function arrival_slot2(flights, start, end) {
         }
     }
 }
+
 function departure_slot2(flights, start, end) {
     if (flights) {
         for (let i = 0; i < flights.length; i++) {
@@ -165,8 +163,7 @@ function departure_slot2(flights, start, end) {
                 //flights[i].style.display = 'block';
                 flights[i].classList.add('show');
                 flights[i].classList.remove('hide');
-            }
-            else {
+            } else {
                 //flights[i].style.display = 'none';
                 flights[i].classList.add('hide');
                 flights[i].classList.remove('show');
@@ -190,8 +187,7 @@ function timeslot(slot) {
             time = flights[i].querySelector(".flight-origin-time .flight-time h5").innerText.split(":");
             if ((parseInt(time[0]) >= parseInt(start)) && (parseInt(time[0]) < parseInt(end))) {
                 flights[i].style.display = 'block';
-            }
-            else {
+            } else {
                 flights[i].style.display = 'none';
             }
         }
@@ -201,8 +197,7 @@ function timeslot(slot) {
             time = flights[i].querySelector(".flight-destination-time .flight-time h5").innerText.split(":");
             if ((parseInt(time[0]) >= parseInt(start)) && (parseInt(time[0]) < parseInt(end))) {
                 flights[i].style.display = 'block';
-            }
-            else {
+            } else {
                 flights[i].style.display = 'none';
             }
         }
@@ -215,12 +210,12 @@ function active(slot) {
     slot.querySelectorAll('img').forEach(image => {
         if (image.dataset.statefor === 'inactive') {
             image.style.display = 'none';
-        }
-        else {
+        } else {
             image.style.display = 'block';
         }
     });
 }
+
 function inactive(slot) {
     if (slot) {
         slot.parentElement.querySelectorAll('.active').forEach(element => {
@@ -228,8 +223,7 @@ function inactive(slot) {
             element.querySelectorAll('img').forEach(image => {
                 if (image.dataset.statefor === 'inactive') {
                     image.style.display = 'block';
-                }
-                else {
+                } else {
                     image.style.display = 'none';
                 }
             })
@@ -244,12 +238,12 @@ function active2(slot) {
     slot.querySelectorAll('img').forEach(image => {
         if (image.dataset.statefor === 'inactive') {
             image.style.display = 'none';
-        }
-        else {
+        } else {
             image.style.display = 'block';
         }
     });
 }
+
 function inactive2(slot) {
     if (slot) {
         slot.parentElement.querySelectorAll('.active').forEach(element => {
@@ -257,14 +251,14 @@ function inactive2(slot) {
             element.querySelectorAll('img').forEach(image => {
                 if (image.dataset.statefor === 'inactive') {
                     image.style.display = 'block';
-                }
-                else {
+                } else {
                     image.style.display = 'none';
                 }
             })
         });
     }
 }
+
 /////////////////////////////
 
 
@@ -279,8 +273,7 @@ function filter_price() {
             //flights[i].style.display = 'none';
             flights[i].classList.add('hide');
             flights[i].classList.remove('show');
-        }
-        else {
+        } else {
             //flights[i].style.display = 'block';
             flights[i].classList.add('show');
             flights[i].classList.remove('hide');
@@ -319,8 +312,7 @@ function filter_price2() {
             //flights[i].style.display = 'none';
             flights[i].classList.add('hide');
             flights[i].classList.remove('show');
-        }
-        else {
+        } else {
             //flights[i].style.display = 'block';
             flights[i].classList.add('show');
             flights[i].classList.remove('hide');
@@ -348,17 +340,13 @@ function reset_filter2() {
 ////////////////////////////////
 
 
-
-
-
 function trip_type_flight(element) {
     if (element.dataset.trip_type === '1') {
         document.querySelector(".query-result-div-2").style.display = 'none';
         document.querySelector(".query-result-div").style.display = 'block';
         //element.classList.add('active-div');
         //document.querySelector('#flight2-btn-div').classList.remove('active-div');
-    }
-    else if (element.dataset.trip_type === '2') {
+    } else if (element.dataset.trip_type === '2') {
         document.querySelector(".query-result-div").style.display = 'none';
         document.querySelector(".query-result-div-2").style.display = 'block';
         //element.classList.add('active-div');
@@ -367,13 +355,14 @@ function trip_type_flight(element) {
 }
 
 
-
 function flight_select() {
     document.querySelectorAll(".flight1-radio").forEach(radio => {
         radio.addEventListener('click', e => {
             document.querySelectorAll('#flt1').forEach(flt1 => {
                 flt1.value = e.target.value;
             });
+
+            document.querySelector("#stop1").value = e.target.dataset.stop ;
             document.querySelector("#select-f1-plane").innerText = e.target.dataset.plane;
             document.querySelector("#select-f1-depart").innerText = e.target.dataset.depart;
             document.querySelector("#select-f1-arrive").innerText = e.target.dataset.arrive;
@@ -386,7 +375,11 @@ function flight_select() {
         radio.addEventListener('click', e => {
             document.querySelectorAll('#flt2').forEach(flt2 => {
                 flt2.value = e.target.value;
+
+
+
             })
+            document.querySelector("#stop2").value = e.target.dataset.stop ;
             document.querySelector("#select-f2-plane").innerText = e.target.dataset.plane;
             document.querySelector("#select-f2-depart").innerText = e.target.dataset.depart;
             document.querySelector("#select-f2-arrive").innerText = e.target.dataset.arrive;
@@ -405,16 +398,14 @@ function media_click(element) {
     if (window.matchMedia("(max-width: 376px)").matches) {
         if (document.querySelector('#trip-identifier').value === '1') {
             element.querySelector('.o-b').click();
-        }
-        else {
+        } else {
             element.querySelector('.r-b').click();
             element.parentElement.parentElement.querySelectorAll('.blue').forEach(flt => {
                 flt.classList.remove('blue');
             });
             element.classList.add('blue');
         }
-    }
-    else {
+    } else {
         return;
     }
 }
@@ -441,19 +432,14 @@ function show_filter() {
         if (r2.style.display === 'none') {
             r1.querySelector(".filter-div").style.display = 'block';
             r2.querySelector(".filter-div").style.display = 'none';
-        }
-        else {
+        } else {
             r2.querySelector(".filter-div").style.display = 'block';
             r1.querySelector(".filter-div").style.display = 'none';
         }
-    }
-    else {
+    } else {
         document.querySelector(".query-result-div .filter-div").style.display = 'block';
     }
 }
-
-
-
 
 
 function tab_change() {
@@ -477,6 +463,10 @@ function tab_change() {
             "left": itemPos.left + "px",
             "width": activeWidth + "px"
         });
-        setTimeout(() => { trip_type_flight(e.target); }, 400);
+        setTimeout(() => {
+            trip_type_flight(e.target);
+        }, 400);
     });
 }
+
+

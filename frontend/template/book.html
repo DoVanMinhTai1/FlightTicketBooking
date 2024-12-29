@@ -17,41 +17,117 @@
             {% endfor %}
         {% endif %}
     <section class="section section1">
-        <form action="{% url 'book' %}" onsubmit="return    book_submit()" method="POST">
+        <form action="{% url 'book' %}" onsubmit="return book_submit()" method="POST">
             {% csrf_token %}
-            {% if flight1Date %}
-                <input type="hidden" name="flight1Date" value='{{flight1Date}}'>
-            {% else %}
-            <input type="hidden" name="flight1Date" value='{{flight1ddate | date:"d-m-Y"}}'>
-            {% endif%}
-            <input type="hidden" name="seat" value="{{seat}}">
-            <input type="hidden" name="flight1" value="{{flight1.id}}">
-
-            <input type="hidden" name="flight1Class" value="{{seat}}">
-            {% if flight2 %}
-                {% if flight2Date %}
-                <input type="hidden" name="flight2Date" value='{{flight2Date}}'>
-                {% else %}
-                <input type="hidden" name="flight2Date" value='{{flight2ddate | date:"d-m-Y"}}'>
-                 {% endif%}
-                <input type="hidden" name="flight2" value="{{flight2.id}}">
-                <input type="hidden" name="flight2Class" value="{{seat}}">
-
+            <input type="hidden" name="tripType" value='{{tripType}}'>
+            {% if tripType == '1' %}
+                 <input type="hidden" name="stop" value='{{stop}}'>
+                {% if stop == 'yes' %}
+                    <input type="hidden" name="flight.0.id" value='{{flight0.id}}'>
+                    <input type="hidden" name="flight.1.id" value='{{flight1.id}}'>
+                    {% if flight1Date is None and flight0Date is None %}
+                        <input type="hidden" name="flight.0.date" value='{{flight0ddate | date:"d-m-Y"}}'>
+                        <input type="hidden" name="flight.1.date" value='{{flight1ddate | date:"d-m-Y"}}'>
+                    {% else %}
+                         <input type="hidden" name="flight.0.date" value='{{flight0Date}}'>
+                         <input type="hidden" name="flight.1.date" value='{{flight1Date}}'>
+                    {% endif%}
+                    <input type="hidden" name="seat" value="{{seat}}">
+                {% endif %}
+                {% if stop == 'no' %}
+                    {% if flight1Date %}
+                        <input type="hidden" name="flight1Date" value='{{flight1Date}}'>
+                    {% else %}
+                        <input type="hidden" name="flight1Date" value='{{flight1ddate | date:"d-m-Y"}}'>
+                    {% endif%}
+                        <input type="hidden" name="seat" value="{{seat}}">
+                        <input type="hidden" name="flight1" value="{{flight1.id}}">
+                        <input type="hidden" name="flight1Class" value="{{seat}}">
+                {% endif %}
+            {% endif %}
+            {% if tripType == '2' %}
+                {% if stop1 == 'yes' %}
+                    <input type="hidden" name="stop" value='{{stop}}'>
+                    <input type="hidden" name="flight.0.id" value='{{flight0.id}}'>
+                    <input type="hidden" name="flight.1.id" value='{{flight1.id}}'>
+                    {% if flight1Date is None and flight0Date is None %}
+                       <input type="hidden" name="flight.0.date" value='{{flight0ddate | date:"d-m-Y"}}'>
+                        <input type="hidden" name="flight.1.date" value='{{flight1ddate | date:"d-m-Y"}}'>
+                    {% else %}
+                         <input type="hidden" name="flight.0.date" value='{{flight0Date}}'>
+                        <input type="hidden" name="flight.1.date" value='{{flight1Date}}'>
+                    {% endif%}
+                    <input type="hidden" name="seat" value="{{seat}}">
+                {% endif %}
+                <input type="hidden" name="stop2" value='{{stop2}}'>
+                {% if stop2 == 'yes' %}
+                    <input type="hidden" name="flight.2.id" value='{{flight2.id}}'>
+                    <input type="hidden" name="flight.3.id" value='{{flight3.id}}'>
+                    {% if flight2Date is None and flight3Date is None %}
+                        <input type="hidden" name="flight.2.date" value='{{flight2ddate | date:"d-m-Y"}}'>
+                        <input type="hidden" name="flight.3.date" value='{{flight3ddate | date:"d-m-Y"}}'>
+                    {% else %}
+                        <input type="hidden" name="flight.2.date" value='{{flight2Date}}'>
+                        <input type="hidden" name="flight.3.date" value='{{flight3Date}}'>
+                    {% endif%}
+                    <input type="hidden" name="seat" value="{{seat}}">
+                {% endif %}
+                {% if stop2 == 'no' %}
+                    <input type="hidden" name="flight2" value="{{flight2.id}}">
+                    <input type="hidden" name="flight2Class" value="{{seat}}">
+                    {% if flight2Date %}
+                        <input type="hidden" name="flight2Date" value='{{flight2Date}}'>
+                    {% else %}
+                        <input type="hidden" name="flight2Date" value='{{flight2ddate | date:"d-m-Y"}}'>
+                    {% endif%}
+                {% endif %}
             {% endif %}
             <div class="row main-row">
                 <div class="col-8">
                 <div class="ticket-details">
+            {% if tripType == '1'%}
                     <h5>Ticket Details</h5>
                     <hr>
+                {% if stop == 'yes' %}
                     <div class="media-airline">
-                        <div>
-                            <div class="brand">{{flight1.airline}}</div>
-                            <div>&nbsp;&middot;&nbsp;</div>
-                            <div class="plane-name">{{flight1.plane}}</div>
-                            <div>&nbsp;&middot;&nbsp;</div>
-                            <div class="plane-name">{{seat}}</div>
+                            <div>
+                                <div class="brand">{{flight0.airline}}</div>
+                                <div>&nbsp;&middot;&nbsp;</div>
+                                <div class="plane-name">{{flight0.plane}}</div>
+                                <div>&nbsp;&middot;&nbsp;</div>
+                                <div class="plane-name">{{seat}}</div>
+                            </div>
+                        </div>
+                        <div class="row ticket-details-div">
+                        <div class="col-3 airline-name">
+                            <div class="brand">{{flight0.airline}}</div>
+                            <div class="plane-name">{{flight0.plane}}</div>
+                        </div>
+                        <div class="col-3 depart-time">
+                            <div class="time">{{flight0.depart_time | time:'H:i'}}</div>
+                            <div class="date ddate" data-value='{{flight0ddate | date:"d-m-Y"}}'>{{flight0ddate | date:"D, d M y"}}</div>
+                            <div class="place">{{flight0.origin.city}}</div>
+                            <div class="airport">{{flight0.origin.airport}}</div>
+                        </div>
+                        <div class="col-3 time-details">
+                            <div class="duration" data-value="{{flight0.duration}}"></div>
+                        </div>
+                        <div class="col-3 arrival-time">
+                            <div class="time">{{flight0.arrival_time | time:'H:i'}}</div>
+                            <div class="date adate" data-value='{{flight0adate | date:"d-m-Y"}}'>{{flight0adate | date:"D, d M y"}}</div>
+                            <div class="place">{{flight0.destination.city}}</div>
+                            <div class="airport">{{flight0.destination.airport}}</div>
                         </div>
                     </div>
+                    <div class="media-airline">
+                            <div>
+                                <div class="brand">{{flight1.airline}}</div>
+                                <div>&nbsp;&middot;&nbsp;</div>
+                                <div class="plane-name">{{flight1.plane}}</div>
+                                <div>&nbsp;&middot;&nbsp;</div>
+                                <div class="plane-name">{{seat}}</div>
+                            </div>
+                        </div>
                     <div class="row ticket-details-div">
                         <div class="col-3 airline-name">
                             <div class="brand">{{flight1.airline}}</div>
@@ -78,38 +154,263 @@
                             Buy Seat
                         </button>
                     </div>
-                    {% if flight2 %}
+                {% endif %}
+                {% if stop == 'no' %}
                         <!--Round Trip-->
                         <div style="padding: 0 15px;" class="round-seperator"><hr style="border-top: 0.5px dashed rgba(0,0,0,.1);"></div>
                         <!--/Round Trip-->
                         <div class="media-airline">
                             <div>
-                                <div class="brand">{{flight2.airline}}</div>
+                                <div class="brand">{{flight1.airline}}</div>
                                 <div>&nbsp;&middot;&nbsp;</div>
-                                <div class="plane-name">{{flight2.plane}}</div>
+                                <div class="plane-name">{{flight1.plane}}</div>
                                 <div>&nbsp;&middot;&nbsp;</div>
                                 <div class="plane-name">{{seat}}</div>
                             </div>
                         </div>
                         <div class="row ticket-details-div">
                             <div class="col-3 airline-name">
-                                <div class="brand">{{flight2.airline}}</div>
-                                <div class="plane-name">{{flight2.plane}}</div>
+                                <div class="brand">{{flight1.airline}}</div>
+                                <div class="plane-name">{{flight1.plane}}</div>
                             </div>
                             <div class="col-3 depart-time">
-                                <div class="time">{{flight2.depart_time | time:'H:i'}}</div>
-                                <div class="date ddate">{{flight2ddate | date:"D, d M y"}}</div>
-                                <div class="place">{{flight2.origin.city}}</div>
-                                <div class="airport">{{flight2.origin.airport}}</div>
+                                <div class="time">{{flight1.depart_time | time:'H:i'}}</div>
+                                <div class="date ddate">{{flight1ddate | date:"D, d M y"}}</div>
+                                <div class="place">{{flight1.origin.city}}</div>
+                                <div class="airport">{{flight1.origin.airport}}</div>
+                            </div>
+                            <div class="col-3 time-details">
+                                <div class="duration" data-value="{{flight1.duration}}"></div>
+                            </div>
+                            <div class="col-3 arrival-time">
+                                <div class="time">{{flight1.arrival_time | time:'H:i'}}</div>
+                                <div class="date adate">{{flight1adate | date:"D, d M y"}}</div>
+                                <div class="place">{{flight1.destination.city}}</div>
+                                <div class="airport">{{flight1.destination.airport}}</div>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <button type="button" class="btn btn-primary btn-danger" data-toggle="modal" data-target="#myModal">
+                                Buy Seat
+                            </button>
+                        </div>
+                {% endif %}
+            {% endif %}
+            {% if tripType == '2'%}
+                {% if stop1 == 'yes' %}
+                    <h5>Ticket 1 Details</h5>
+                    <hr>
+                    <div class="media-airline">
+                            <div>
+                                <div class="brand">{{flight0.airline}}</div>
+                                <div>&nbsp;&middot;&nbsp;</div>
+                                <div class="plane-name">{{flight0.plane}}</div>
+                                <div>&nbsp;&middot;&nbsp;</div>
+                                <div class="plane-name">{{seat}}</div>
+                            </div>
+                        </div>
+                        <div class="row ticket-details-div">
+                        <div class="col-3 airline-name">
+                            <div class="brand">{{flight0.airline}}</div>
+                            <div class="plane-name">{{flight0.plane}}</div>
+                        </div>
+                        <div class="col-3 depart-time">
+                            <div class="time">{{flight0.depart_time | time:'H:i'}}</div>
+                            <div class="date ddate" data-value='{{flight0ddate | date:"d-m-Y"}}'>{{flight0ddate | date:"D, d M y"}}</div>
+                            <div class="place">{{flight0.origin.city}}</div>
+                            <div class="airport">{{flight0.origin.airport}}</div>
+                        </div>
+                        <div class="col-3 time-details">
+                            <div class="duration" data-value="{{flight0.duration}}"></div>
+                        </div>
+                        <div class="col-3 arrival-time">
+                            <div class="time">{{flight0.arrival_time | time:'H:i'}}</div>
+                            <div class="date adate" data-value='{{flight0adate | date:"d-m-Y"}}'>{{flight0adate | date:"D, d M y"}}</div>
+                            <div class="place">{{flight0.destination.city}}</div>
+                            <div class="airport">{{flight0.destination.airport}}</div>
+                        </div>
+                    </div>
+                    <div class="media-airline">
+                            <div>
+                                <div class="brand">{{flight1.airline}}</div>
+                                <div>&nbsp;&middot;&nbsp;</div>
+                                <div class="plane-name">{{flight1.plane}}</div>
+                                <div>&nbsp;&middot;&nbsp;</div>
+                                <div class="plane-name">{{seat}}</div>
+                            </div>
+                        </div>
+                    <div class="row ticket-details-div">
+                        <div class="col-3 airline-name">
+                            <div class="brand">{{flight1.airline}}</div>
+                            <div class="plane-name">{{flight1.plane}}</div>
+                        </div>
+                        <div class="col-3 depart-time">
+                            <div class="time">{{flight1.depart_time | time:'H:i'}}</div>
+                            <div class="date ddate" data-value='{{flight1ddate | date:"d-m-Y"}}'>{{flight1ddate | date:"D, d M y"}}</div>
+                            <div class="place">{{flight1.origin.city}}</div>
+                            <div class="airport">{{flight1.origin.airport}}</div>
+                        </div>
+                        <div class="col-3 time-details">
+                            <div class="duration" data-value="{{flight1.duration}}"></div>
+                        </div>
+                        <div class="col-3 arrival-time">
+                            <div class="time">{{flight1.arrival_time | time:'H:i'}}</div>
+                            <div class="date adate" data-value='{{flight1adate | date:"d-m-Y"}}'>{{flight1adate | date:"D, d M y"}}</div>
+                            <div class="place">{{flight1.destination.city}}</div>
+                            <div class="airport">{{flight1.destination.airport}}</div>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <button type="button" class="btn btn-primary btn-danger" data-toggle="modal" data-target="#myModal">
+                            Buy Seat
+                        </button>
+                    </div>
+                    {% endif%}
+                    {% if stop2 == 'yes' %}
+                        <h5>Ticket 2 Details</h5>
+                        <hr>
+                        <div class="media-airline">
+                            <div>
+                                <div class="brand">{{ flight2.airline }}</div>
+                                <div>&nbsp;&middot;&nbsp;</div>
+                                <div class="plane-name">{{ flight2.plane }}</div>
+                                <div>&nbsp;&middot;&nbsp;</div>
+                                <div class="plane-name">{{ seat }}</div>
+                            </div>
+                        </div>
+                        <div class="row ticket-details-div">
+                            <div class="col-3 airline-name">
+                                <div class="brand">{{ flight2.airline }}</div>
+                                <div class="plane-name">{{ flight2.plane }}</div>
+                            </div>
+                            <div class="col-3 depart-time">
+                                <div class="time">{{ flight2.depart_time | time:'H:i' }}</div>
+                                <div class="date ddate" data-value="{{ flight2ddate | date:'d-m-Y' }}">{{ flight2ddate | date:'D, d M y' }}</div>
+                                <div class="place">{{ flight2.origin.city }}</div>
+                                <div class="airport">{{ flight2.origin.airport }}</div>
+                            </div>
+                            <div class="col-3 time-details">
+                                <div class="duration" data-value="{{ flight2.duration }}"></div>
+                            </div>
+                            <div class="col-3 arrival-time">
+                                <div class="time">{{ flight2.arrival_time | time:'H:i' }}</div>
+                                <div class="date adate" data-value="{{ flight2adate | date:'d-m-Y' }}">{{ flight2adate | date:'D, d M y' }}</div>
+                                <div class="place">{{ flight2.destination.city }}</div>
+                                <div class="airport">{{ flight2.destination.airport }}</div>
+                            </div>
+                        </div>
+                        <div class="media-airline">
+                            <div>
+                                <div class="brand">{{ flight3.airline }}</div>
+                                <div>&nbsp;&middot;&nbsp;</div>
+                                <div class="plane-name">{{ flight3.plane }}</div>
+                                <div>&nbsp;&middot;&nbsp;</div>
+                                <div class="plane-name">{{ seat }}</div>
+                            </div>
+                        </div>
+                        <div class="row ticket-details-div">
+                            <div class="col-3 airline-name">
+                                <div class="brand">{{ flight3.airline }}</div>
+                                <div class="plane-name">{{ flight3.plane }}</div>
+                            </div>
+                            <div class="col-3 depart-time">
+                                <div class="time">{{ flight3.depart_time | time:'H:i' }}</div>
+                                <div class="date ddate" data-value="{{ flight3ddate | date:'d-m-Y' }}">{{ flight3ddate | date:'D, d M y' }}</div>
+                                <div class="place">{{ flight3.origin.city }}</div>
+                                <div class="airport">{{ flight3.origin.airport }}</div>
+                            </div>
+                            <div class="col-3 time-details">
+                                <div class="duration" data-value="{{ flight3.duration }}"></div>
+                            </div>
+                            <div class="col-3 arrival-time">
+                                <div class="time">{{ flight3.arrival_time | time:'H:i' }}</div>
+                                <div class="date adate" data-value="{{ flight3adate | date:'d-m-Y' }}">{{ flight3adate | date:'D, d M y' }}</div>
+                                <div class="place">{{ flight3.destination.city }}</div>
+                                <div class="airport">{{ flight3.destination.airport }}</div>
+                            </div>
+                        </div>
+                    <div class="text-end">
+                        <button type="button" class="btn btn-primary btn-danger" data-toggle="modal" data-target="#myModal1">
+                            Buy Seat
+                        </button>
+                    </div>
+                    {% endif%}
+                {% if stop1 == 'no' %}
+                        <h5>Ticket 1 Details</h5>
+                        <hr>
+                    <!--Round Trip-->
+                        <div style="padding: 0 15px;" class="round-seperator"><hr style="border-top: 0.5px dashed rgba(0,0,0,.1);"></div>
+                        <!--/Round Trip-->
+                        <div class="media-airline">
+                            <div>
+                                <div class="brand">{{flight1.airline}}</div>
+                                <div>&nbsp;&middot;&nbsp;</div>
+                                <div class="plane-name">{{flight1.plane}}</div>
+                                <div>&nbsp;&middot;&nbsp;</div>
+                                <div class="plane-name">{{seat}}</div>
+                            </div>
+                        </div>
+                        <div class="row ticket-details-div">
+                            <div class="col-3 airline-name">
+                                <div class="brand">{{flight1.airline}}</div>
+                                <div class="plane-name">{{flight1.plane}}</div>
+                            </div>
+                            <div class="col-3 depart-time">
+                                <div class="time">{{flight1.depart_time | time:'H:i'}}</div>
+                                <div class="date ddate">{{flight1ddate | date:"D, d M y"}}</div>
+                                <div class="place">{{flight1.origin.city}}</div>
+                                <div class="airport">{{flight1.origin.airport}}</div>
                             </div>
                             <div class="col-3 time-details">
                                 <div class="duration" data-value="{{flight2.duration}}"></div>
                             </div>
                             <div class="col-3 arrival-time">
-                                <div class="time">{{flight2.arrival_time | time:'H:i'}}</div>
-                                <div class="date adate">{{flight2adate | date:"D, d M y"}}</div>
-                                <div class="place">{{flight2.destination.city}}</div>
-                                <div class="airport">{{flight2.destination.airport}}</div>
+                                <div class="time">{{flight1.arrival_time | time:'H:i'}}</div>
+                                <div class="date adate">{{flight1adate | date:"D, d M y"}}</div>
+                                <div class="place">{{flight1.destination.city}}</div>
+                                <div class="airport">{{flight1.destination.airport}}</div>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <button type="button" class="btn btn-primary btn-danger" data-toggle="modal" data-target="#myModal">
+                                Buy Seat
+                            </button>
+                        </div>
+                    {% endif%}
+                    {% if stop2 == 'no' %}
+                        <h5>Ticket 1 Details</h5>
+                        <hr>
+                        <div style="padding: 0 15px;" class="round-seperator">
+                            <hr style="border-top: 0.5px dashed rgba(0,0,0,.1);">
+                        </div>
+                        <div class="media-airline">
+                            <div>
+                                <div class="brand">{{ flight2.airline }}</div>
+                                <div>&nbsp;&middot;&nbsp;</div>
+                                <div class="plane-name">{{ flight2.plane }}</div>
+                                <div>&nbsp;&middot;&nbsp;</div>
+                                <div class="plane-name">{{ seat }}</div>
+                            </div>
+                        </div>
+                        <div class="row ticket-details-div">
+                            <div class="col-3 airline-name">
+                                <div class="brand">{{ flight2.airline }}</div>
+                                <div class="plane-name">{{ flight2.plane }}</div>
+                            </div>
+                            <div class="col-3 depart-time">
+                                <div class="time">{{ flight2.depart_time | time:'H:i' }}</div>
+                                <div class="date ddate">{{ flight2ddate | date:"D, d M y" }}</div>
+                                <div class="place">{{ flight2.origin.city }}</div>
+                                <div class="airport">{{ flight2.origin.airport }}</div>
+                            </div>
+                            <div class="col-3 time-details">
+                                <div class="duration" data-value="{{ flight2.duration }}"></div>
+                            </div>
+                            <div class="col-3 arrival-time">
+                                <div class="time">{{ flight2.arrival_time | time:'H:i' }}</div>
+                                <div class="date adate">{{ flight2adate | date:"D, d M y" }}</div>
+                                <div class="place">{{ flight2.destination.city }}</div>
+                                <div class="airport">{{ flight2.destination.airport }}</div>
                             </div>
                         </div>
                         <div class="text-end">
@@ -117,26 +418,26 @@
                                 Buy Seat
                             </button>
                         </div>
-                    {% endif %}
+                    {% endif%}
+                {% endif%}
                     <hr>
                    <div class="row">
-    <!-- Baggage Details -->
-    <div class="baggage-details col-8">
-        <svg width="1em" height="1.5em" viewBox="0 3 16 16" class="bi bi-bag" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-            <path fill-rule="evenodd" d="M8 1a2.5 2.5 0 0 0-2.5 2.5V4h5v-.5A2.5 2.5 0 0 0 8 1zm3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4h-3.5zM2 5v9a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V5H2z"/>
-        </svg>
-        30 Kgs Check-in, 7 Kgs Cabin
-    </div>
+                <!-- Baggage Details -->
+                <div class="baggage-details col-8">
+                    <svg width="1em" height="1.5em" viewBox="0 3 16 16" class="bi bi-bag" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" d="M8 1a2.5 2.5 0 0 0-2.5 2.5V4h5v-.5A2.5 2.5 0 0 0 8 1zm3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4h-3.5zM2 5v9a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V5H2z"/>
+                    </svg>
+                    30 Kgs Check-in, 7 Kgs Cabin
+                </div>
 
 </div>
   <!-- Modal -->
   <div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
-
         <!-- Modal Header -->
         <div class="modal-header">
-          <h5 class="modal-title" id="myModalLabel">Flight Seat Map: First Flight - From {{flight1.origin.city}} To {{flight1.destination.city}}</h5>
+          <h5 class="modal-title" id="myModalLabel">Flight Seat Map: Ticket 1</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -232,7 +533,7 @@
 
         <!-- Modal Header -->
         <div class="modal-header">
-          <h5 class="modal-title" id="myModalLabel1">Flight Seat Map: Second Flight - From {{flight2.origin.city}} To {{flight2.destination.city}}</h5>
+          <h5 class="modal-title" id="myModalLabel1">Flight Seat Map: Ticket 2</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -557,7 +858,7 @@
                             </div>
                             <div class="col-3 ci">
                                 Mobile No
-                                <input type="tel" pattern="[0-9]" name="mobile" class="form-control" placeholder="Mobile No" required>
+                                <input type="tel" pattern="[0-9]*" name="mobile" class="form-control" placeholder="Mobile No" required>
                             </div>
                             <div class="col-6 ci">
                                 Email
@@ -631,38 +932,129 @@
                             <div class="base-fae-label">Base Fare: </div>
                             <div class="base-fare-value">
                                 {% if seat == 'First' %}
-                                    ₹ <span>
-                                        {% if flight2 %}
-                                            {{flight1.first_fare | add:flight2.first_fare}}
+                                $ <span>
+                                    {% if tripType == '1' %}
+                                        {% if stop == 'yes' %}
+                                            {{ flight0.first_fare | add:flight1.first_fare }}
                                         {% else %}
-                                            {{flight1.first_fare}}
+                                            {{ flight1.first_fare }}
                                         {% endif %}
-                                        </span>
-                                    <input type="hidden" id="basefare" value="{% if flight2 %}{{flight1.first_fare | add:flight2.first_fare}}{% else %}{{flight1.first_fare}}{% endif %}">
-                                {% elif seat == 'Business' %}
-                                    ₹ <span>
-                                        {% if flight2 %}
-                                            {{flight1.business_fare | add:flight2.business_fare}}
+                                    {% else %}
+                                        {% if stop1 == 'yes' and stop2 == 'yes' %}
+                                            {{ flight0.first_fare | add:flight1.first_fare | add:flight2.first_fare | add:flight3.first_fare }}
+                                        {% elif stop1 == 'yes' and stop2 == 'no' %}
+                                            {{ flight0.first_fare | add:flight1.first_fare | add:flight2.first_fare }}
+                                        {% elif stop1 == 'no' and stop2 == 'yes' %}
+                                            {{ flight3.first_fare | add:flight1.first_fare | add:flight2.first_fare }}
                                         {% else %}
-                                            {{flight1.business_fare}}
+                                            {{ flight1.first_fare | add:flight2.first_fare }}
                                         {% endif %}
-                                        </span>
-                                    <input type="hidden" id="basefare" value="{% if flight2 %}{{flight1.business_fare | add:flight2.business_fare}}{% else %}{{flight1.business_fare}}{% endif %}">
-                                {% elif seat == 'Economy' %}
-                                    ₹ <span>
-                                        {% if flight2 %}
-                                            {{flight1.economy_fare | add:flight2.economy_fare}}
+                                    {% endif %}
+                                </span>
+                                <input type="hidden" id="basefare" value="
+                                    {% if tripType == '1' %}
+                                        {% if stop == 'yes' %}
+                                            {{ flight0.first_fare | add:flight1.first_fare }}
                                         {% else %}
-                                            {{flight1.economy_fare}}
+                                            {{ flight1.first_fare }}
                                         {% endif %}
-                                    </span>
-                                    <input type="hidden" id="basefare" value="{% if flight2 %}{{flight1.economy_fare | add:flight2.economy_fare}}{% else %}{{flight1.economy_fare}}{% endif %}">
-                                {% endif %}
+                                    {% else %}
+                                        {% if stop1 == 'yes' and stop2 == 'yes' %}
+                                            {{ flight0.first_fare | add:flight1.first_fare | add:flight2.first_fare | add:flight3.first_fare }}
+                                        {% elif stop1 == 'yes' and stop2 == 'no' %}
+                                            {{ flight0.first_fare | add:flight1.first_fare | add:flight2.first_fare }}
+                                        {% elif stop1 == 'no' and stop2 == 'yes' %}
+                                            {{ flight3.first_fare | add:flight1.first_fare | add:flight2.first_fare }}
+                                        {% else %}
+                                            {{ flight1.first_fare | add:flight2.first_fare }}
+                                        {% endif %}
+                                    {% endif %}
+                                ">
+                            {% elif seat == 'Business' %}
+                                $ <span>
+                                    {% if tripType == '1' %}
+                                        {% if stop == 'yes' %}
+                                            {{ flight0.business_fare | add:flight1.business_fare }}
+                                        {% else %}
+                                            {{ flight1.business_fare }}
+                                        {% endif %}
+                                    {% else %}
+                                        {% if stop1 == 'yes' and stop2 == 'yes' %}
+                                            {{ flight0.business_fare | add:flight1.business_fare | add:flight2.business_fare | add:flight3.business_fare }}
+                                        {% elif stop1 == 'yes' and stop2 == 'no' %}
+                                            {{ flight0.business_fare | add:flight1.business_fare | add:flight2.business_fare }}
+                                        {% elif stop1 == 'no' and stop2 == 'yes' %}
+                                            {{ flight3.business_fare | add:flight1.business_fare | add:flight2.business_fare }}
+                                        {% else %}
+                                            {{ flight1.business_fare | add:flight2.business_fare }}
+                                        {% endif %}
+                                    {% endif %}
+                                </span>
+                                <input type="hidden" id="basefare" value="
+                                    {% if tripType == '1' %}
+                                        {% if stop == 'yes' %}
+                                            {{ flight0.business_fare | add:flight1.business_fare }}
+                                        {% else %}
+                                            {{ flight1.business_fare }}
+                                        {% endif %}
+                                    {% else %}
+                                        {% if stop1 == 'yes' and stop2 == 'yes' %}
+                                            {{ flight0.business_fare | add:flight1.business_fare | add:flight2.business_fare | add:flight3.business_fare }}
+                                        {% elif stop1 == 'yes' and stop2 == 'no' %}
+                                            {{ flight0.business_fare | add:flight1.business_fare | add:flight2.business_fare }}
+                                        {% elif stop1 == 'no' and stop2 == 'yes' %}
+                                            {{ flight3.business_fare | add:flight1.business_fare | add:flight2.business_fare }}
+                                        {% else %}
+                                            {{ flight1.business_fare | add:flight2.business_fare }}
+                                        {% endif %}
+                                    {% endif %}
+                                ">
+                            {% elif seat == 'Economy' %}
+                                $ <span>
+                                    {% if tripType == '1' %}
+                                        {% if stop == 'yes' %}
+                                            {{ flight0.economy_fare | add:flight1.economy_fare }}
+                                        {% else %}
+                                            {{ flight1.economy_fare }}
+                                        {% endif %}
+                                    {% else %}
+                                        {% if stop1 == 'yes' and stop2 == 'yes' %}
+                                            {{ flight0.economy_fare | add:flight1.economy_fare | add:flight2.economy_fare | add:flight3.economy_fare }}
+                                        {% elif stop1 == 'yes' and stop2 == 'no' %}
+                                            {{ flight0.economy_fare | add:flight1.economy_fare | add:flight2.economy_fare }}
+                                        {% elif stop1 == 'no' and stop2 == 'yes' %}
+                                            {{ flight3.economy_fare | add:flight1.economy_fare | add:flight2.economy_fare }}
+                                        {% else %}
+                                            {{ flight1.economy_fare | add:flight2.economy_fare }}
+                                        {% endif %}
+                                    {% endif %}
+                                </span>
+                                <input type="hidden" id="basefare" value="
+                                    {% if tripType == '1' %}
+                                        {% if stop == 'yes' %}
+                                            {{ flight0.economy_fare | add:flight1.economy_fare }}
+                                        {% else %}
+                                            {{ flight1.economy_fare }}
+                                        {% endif %}
+                                    {% else %}
+                                        {% if stop1 == 'yes' and stop2 == 'yes' %}
+                                            {{ flight0.economy_fare | add:flight1.economy_fare | add:flight2.economy_fare | add:flight3.economy_fare }}
+                                        {% elif stop1 == 'yes' and stop2 == 'no' %}
+                                            {{ flight0.economy_fare | add:flight1.economy_fare | add:flight2.economy_fare }}
+                                        {% elif stop1 == 'no' and stop2 == 'yes' %}
+                                            {{ flight3.economy_fare | add:flight1.economy_fare | add:flight2.economy_fare }}
+                                        {% else %}
+                                            {{ flight1.economy_fare | add:flight2.economy_fare }}
+                                        {% endif %}
+                                    {% endif %}
+                                ">
+                            {% endif %}
+
                             </div>
                         </div>
                         <div class="row surcharges">
                             <div class="surcharges-label">Fee & Surcharges: </div>
-                            <div class="surcharges-value">₹ <span>{{fee}}</span></div>
+                            <div class="surcharges-value">$ <span>{{fee}}</span></div>
                             <input type="hidden" id="fee" value="{{fee}}">
                         </div>
                         <div class="row surcharges" id="seatSelected">
@@ -675,31 +1067,68 @@
                             <div class="total-fare-label">Total Fare: </div>
                             <div class="total-fare-value">
                                 {% if seat == 'First' %}
-                                    ₹ <span>
-                                        {% if flight2 %}
-                                            {{flight1.first_fare | add:flight2.first_fare | add:fee}}
-                                        {% else %}
-                                            {{flight1.first_fare | add:fee}}
+                                    $ <span>
+                                        {% if tripType == '1' %}
+                                            {% if stop == 'yes' %}
+                                                {{ flight0.first_fare | add:flight1.first_fare | add:fee }}
+                                            {% else %}
+                                                {{ flight1.first_fare | add:fee }}
+                                            {% endif %}
+                                        {% elif tripType == '2' %}
+                                            {% if stop1 == 'yes' and stop2 == 'yes' %}
+                                                {{ flight0.first_fare | add:flight1.first_fare | add:flight2.first_fare | add:flight3.first_fare | add:fee }}
+                                            {% elif stop1 == 'yes' and stop2 == 'no' %}
+                                                {{ flight0.first_fare | add:flight1.first_fare | add:flight2.first_fare | add:fee }}
+                                            {% elif stop1 == 'no' and stop2 == 'yes' %}
+                                                {{ flight3.first_fare | add:flight1.first_fare | add:flight2.first_fare | add:fee }}
+                                            {% else %}
+                                                {{ flight1.first_fare | add:flight2.first_fare | add:fee }}
+                                            {% endif %}
                                         {% endif %}
                                     </span>
                                 {% elif seat == 'Business' %}
-                                    ₹ <span>
-                                        {% if flight2 %}
-                                            {{flight1.business_fare | add:flight2.business_fare | add:fee}}
-                                        {% else %}
-                                            {{flight1.business_fare | add:fee}}
+                                    $ <span>
+                                        {% if tripType == '1' %}
+                                            {% if stop == 'yes' %}
+                                                {{ flight0.business_fare | add:flight1.business_fare | add:fee }}
+                                            {% else %}
+                                                {{ flight1.business_fare | add:fee }}
+                                            {% endif %}
+                                        {% elif tripType == '2' %}
+                                            {% if stop1 == 'yes' and stop2 == 'yes' %}
+                                                {{ flight0.business_fare | add:flight1.business_fare | add:flight2.business_fare | add:flight3.business_fare | add:fee }}
+                                            {% elif stop1 == 'yes' and stop2 == 'no' %}
+                                                {{ flight0.business_fare | add:flight1.business_fare | add:flight2.business_fare | add:fee }}
+                                            {% elif stop1 == 'no' and stop2 == 'yes' %}
+                                                {{ flight3.business_fare | add:flight1.business_fare | add:flight2.business_fare | add:fee }}
+                                            {% else %}
+                                                {{ flight1.business_fare | add:flight2.business_fare | add:fee }}
+                                            {% endif %}
                                         {% endif %}
                                     </span>
                                 {% elif seat == 'Economy' %}
-                                    ₹ <span>
-                                        {% if flight2 %}
-                                            {{flight1.economy_fare | add:flight2.economy_fare | add:fee}}
-                                        {% else %}
-                                            {{flight1.economy_fare | add:fee}}
+                                    $ <span>
+                                        {% if tripType == '1' %}
+                                            {% if stop == 'yes' %}
+                                                {{ flight0.economy_fare | add:flight1.economy_fare | add:fee }}
+                                            {% else %}
+                                                {{ flight1.economy_fare | add:fee }}
+                                            {% endif %}
+                                        {% elif tripType == '2' %}
+                                            {% if stop1 == 'yes' and stop2 == 'yes' %}
+                                                {{ flight0.economy_fare | add:flight1.economy_fare | add:flight2.economy_fare | add:flight3.economy_fare | add:fee }}
+                                            {% elif stop1 == 'yes' and stop2 == 'no' %}
+                                                {{ flight0.economy_fare | add:flight1.economy_fare | add:flight2.economy_fare | add:fee }}
+                                            {% elif stop1 == 'no' and stop2 == 'yes' %}
+                                                {{ flight3.economy_fare | add:flight1.economy_fare | add:flight2.economy_fare | add:fee }}
+                                            {% else %}
+                                                {{ flight1.economy_fare | add:flight2.economy_fare | add:fee }}
+                                            {% endif %}
                                         {% endif %}
-                                        </span>
+                                    </span>
                                 {% endif %}
                             </div>
+
                         </div>
                     </div>
                     <div class="coupon-code">
@@ -883,7 +1312,7 @@ function updateTotalFare() {
       // Create surcharge value div for the seat
       const surchargeValueDiv = document.createElement('div');
       surchargeValueDiv.classList.add('surcharges-value');
-      surchargeValueDiv.innerHTML = `${seatName} - ₹<span>${seatPrice*percentDiscount}</span>`;
+      surchargeValueDiv.innerHTML = `${seatName} - $<span>${seatPrice*percentDiscount}</span>`;
       seatSelectedContainer.appendChild(surchargeValueDiv);
 
       totalFare += seatPrice;
@@ -896,7 +1325,7 @@ function updateTotalFare() {
   // Update previousSelectedSeats with current selection for future comparison
   totalFare = totalFare * percentDiscount;
   // Update the total fare in the UI
-  totalFareContainer.innerHTML = `₹ <span>${totalFare.toFixed(1)}</span>`;
+  totalFareContainer.innerHTML = `$ <span>${totalFare.toFixed(1)}</span>`;
 
   // Update the seat count
   document.getElementById('chosenCount').value = currentSelectedSeats.length;

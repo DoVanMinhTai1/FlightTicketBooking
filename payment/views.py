@@ -93,6 +93,7 @@ def book(request):
     coupons = {'FL928K': 0.3, 'FL239D': 0.4, 'FL138S':0.2}
     if request.method == "POST":
         if request.user.is_authenticated:
+
             flight1 = Flight.objects.get(id=request.POST.get('flight1'))
             flight_1date = request.POST.get('flight1Date')
             flight_1class = request.POST.get('flight1Class')
