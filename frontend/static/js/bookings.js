@@ -32,7 +32,7 @@ function cancel_tkt() {
     });
 }
 
-let timeLeft = 60; // thời gian đếm ngược
+let timeLeft = 20 * 60; // thời gian đếm ngược
 function startCountdown() {
     const timerDisplay = document.getElementById('countdown');
     function updateTimer() {
