@@ -7,15 +7,30 @@ from django.urls import reverse
 import secrets
 from flights.constant import FEE
 from flights.models import Flight
-from payment.models import Payment, Passenger, Ticket
+from payment.models import Payment, Passenger, Ticket, Seat, TicketSeat, PaymentTicket
 from frontend.template import *
+from flights import handler
+from django.core import serializers
+
 
 def payment_view(request):
     if request.user.is_authenticated:
         if request.method == "POST":
-            # lấy dữ liệu trên form
-            ticket1_id = request.POST.get("ticket1")
-            print(ticket1_id)
+            tickets = request.POST.get("tickets")
+            if tickets:
+                try:
+                    ticket_ids = [int(t) for t in tickets.split(',')]
+                    tickets = [Ticket.objects.get(id=ticket_id) for ticket_id in ticket_ids]
+                except Ticket.DoesNotExist:
+                    # Handle the case where a ticket with a given id doesn't exist
+                    # For example, you can log the error or return a message
+                    tickets = []
+                except ValueError:
+                    # Handle the case where conversion of id to int fails
+                    tickets = []
+            else:
+                tickets = []
+            res = {'tickets': tickets}
             fare = request.POST.get("fare")
             cardNumber = request.POST.get('cardNumber')
             cardHolderName = request.POST.get('cardHolderName')
@@ -25,18 +40,15 @@ def payment_view(request):
             # Lấy ngày tháng năm hiện tại.
             current_year = datetime.today().year
             current_month = datetime.today().month
-            t2 = False
-            if request.POST.get('ticket2'):
-                t2 = True
-                ticket2_id = request.POST.get('ticket2')
             try:
-                ticket = Ticket.objects.get(id=ticket1_id)
-                ticket.status = 'CANCELLED'
-                ticket.booking_date = datetime.now()
-                tics = {'ticket1': ticket1_id,
-                        'fare': fare}
-                ticket.save()
-                # Nếu thẻ còn hạn thì tạo thanh toán
+                # Kiểm tra số của thẻ có dưới 12 chữ số hay không. Không thì báo lỗi
+                if len(cardNumber) != 12:
+                    messages.warning(request, 'Card number must be 12 digits')
+                    return render(request, 'payment.html', {'fare': fare, 'tickets': tickets, 'tripType': tripType})
+                    # Kiểm tra xem thời gian hiệu lực của thẻ
+                if expYear < current_year or (expYear == current_year and expMonth < current_month):
+                    messages.warning(request, 'Card expired')
+                    return render(request, 'payment.html', {'fare': fare, 'tickets': tickets, 'tripType': tripType})
                 payment = Payment.objects.create(
                     fare=fare,
                     card_number=cardNumber,
@@ -44,170 +56,378 @@ def payment_view(request):
                     expMonth=expMonth,
                     expYear=expYear,
                     cvv=cvv,
-                    ticket_id=ticket,
-                    status='CANCELLED',
+                    status='CONFIRMED',
                 )
-                if t2:
-                    ticket2 = Ticket.objects.get(id=ticket2_id)
-                    ticket2.status = 'CANCELLED'
-                    ticket2.booking_date = datetime.now()
-                    ticket2.save()
-                    tics = {'ticket1': ticket1_id,
-                            'ticket2': ticket2_id,
-                            'fare' : fare,}
-                    payment.ticket_id2 = ticket2
-                    # Kiểm tra số của thẻ có dưới 12 chữ số hay không. Không thì báo lỗi
-                if len(cardNumber) != 12:
-                    messages.warning(request, 'Card number must be 12 digits')
-                    return render(request, 'payment.html', tics)
-                        # Kiểm tra xem thời gian hiệu lực của thẻ
-                if expYear < current_year or (expYear == current_year and expMonth < current_month):
-                    messages.warning(request, 'Card expired')
-                    return render(request, 'payment.html', tics)
-                tics = {'ticket1':ticket}
-                if t2:
-                    ticket2.status = 'CONFIRMED'
-                    ticket2.save()
-                    tics = {'ticket1':ticket,'ticket2':ticket2}
-                ticket.status = 'CONFIRMED'
-                ticket.save()
-                payment.status = 'CONFIRMED'
+                for ticket in tickets:
+                    ticket.booking_date = datetime.now()
+                    ticket.status = 'CONFIRMED'
+                    ticket.save()
+                    payment_ticket = PaymentTicket.objects.create(payment=payment, ticket=ticket)
+                    payment_ticket.save()
                 payment.save()
-                return render(request, 'payment_process.html',tics)
+                return render(request, 'payment_process.html', res)
             except Exception as e:
                 return HttpResponse(e)
     else:
         return HttpResponseRedirect(reverse('login'))
 
-def ticket_data(request, ref):
-    ticket = Ticket.objects.get(ref_no=ref)
-    return JsonResponse({
-        'ref': ticket.ref_no,
-        'from': ticket.flight.origin.code,
-        'to': ticket.flight.destination.code,
-        'flight_date': ticket.flight_ddate,
-        'status': ticket.status
-    })
-def book(request):
-    fare = 0
-    coupons = {'FL928K': 0.3, 'FL239D': 0.4, 'FL138S':0.2}
-    if request.method == "POST":
-        if request.user.is_authenticated:
 
-            flight1 = Flight.objects.get(id=request.POST.get('flight1'))
-            flight_1date = request.POST.get('flight1Date')
-            flight_1class = request.POST.get('flight1Class')
+def ticket_data(request, ref):
+    try:
+        ticket = Ticket.objects.get(ref_no=ref)
+        return JsonResponse({
+            'ref': ticket.ref_no,
+            'from': ticket.flight.origin.code,
+            'to': ticket.flight.destination.code,
+            'flight_date': ticket.flight_ddate,
+            'status': ticket.status
+        })
+    except Ticket.DoesNotExist:
+        return JsonResponse({'error': 'Ticket not found'}, status=404)
+
+
+def book(request):
+    if request.user.is_authenticated:
+        if request.method == "POST":
+            data = {}
+            seat = request.POST.get('seat')
+            people = request.POST.get('people')
+            if int(request.POST.get('seat_amount')) > 0:
+                seatn1 = 'selectedSeat_'
+                seats1 = []
+                for i in range(1, int(people) + 1):
+                    s = Seat.objects.get(id=request.POST.get(seatn1 + str(i)))
+                    seats1.append(s)
+            if int(request.POST.get('seat_amount1')) > 0:
+                seats2 = []
+                seatn2 = 'selectedSeat1_'
+                for i in range(1, int(people) + 1):
+                    s1 = Seat.objects.get(id=request.POST.get(seatn2 + str(i)))
+                    seats2.append(s1)
+            tripType = request.POST.get('tripType')
             countrycode = request.POST['countryCode']
             mobile = request.POST['mobile']
             email = request.POST['email']
-            f2 = False
-            flight2 = None
-            flight_2date = None
-            flight_2class = None
-            if request.POST.get('flight2'):
-                flight2 = Flight.objects.get(id=request.POST.get('flight2'))
-                flight_2date = request.POST.get('flight2Date')
-                flight_2class = request.POST.get('flight2Class')
-                f2 = True
+            if tripType == '1':
+                seat = request.POST.get('seat')
+                stop = request.POST.get('stop')
+                if stop == 'yes':
+                    flight0 = Flight.objects.get(id=request.POST.get('flight.0.id'))
+                    flight1 = Flight.objects.get(id=request.POST.get('flight.1.id'))
+                    flight0Date = request.POST.get('flight.0.date')
+                    flight1Date = request.POST.get('flight.1.date')
+                if stop == 'no':
+                    flight1 = Flight.objects.get(id=request.POST.get('flight1'))
+                    flight_1date = request.POST.get('flight1Date')
+                    flight_1class = request.POST.get('flight1Class')
+            if tripType == '2':
+                stop1 = request.POST.get('stop1')
+                stop2 = request.POST.get('stop2')
+                if stop1 == 'no':
+                    flight1 = Flight.objects.get(id=request.POST.get('flight1'))
+                    flight_1date = request.POST.get('flight1Date')
+                    flight_1class = request.POST.get('flight1Class')
+                if stop1 == 'yes':
+                    flight0 = Flight.objects.get(id=request.POST.get('flight.0.id'))
+                    flight1 = Flight.objects.get(id=request.POST.get('flight.1.id'))
+                    flight0Date = request.POST.get('flight.0.date')
+                    flight1Date = request.POST.get('flight.1.date')
+                if stop2 == 'no':
+                    flight2 = Flight.objects.get(id=request.POST.get('flight2'))
+                    flight_2date = request.POST.get('flight2Date')
+                    flight_2class = request.POST.get('flight2Class')
+                    f2 = True
+                if stop2 == 'yes':
+                    flight2 = Flight.objects.get(id=request.POST.get('flight.2.id'))
+                    flight3 = Flight.objects.get(id=request.POST.get('flight.3.id'))
+                    flight2Date = request.POST.get('flight.2.date')
+                    flight3Date = request.POST.get('flight.3.date')
+                if tripType == '1':
+                    mes = {'tripType': '1', 'seat': seat, "fee": FEE, 'people': people, }
+                    if stop == 'no':
+                        mes.update({
+                            'flight1': flight1,
+                            "flight1Date": flight_1date,  # Pass it back to the template
+                            "flight1Class": flight_1class,
+                            'stop': 'no',
+                            'seats1': Seat.objects.filter(flight=flight1.pk),
+                        })
+                    if stop == 'yes':
+                        connecting = handler.connecting_flights(flight0.pk, flight1.pk, flight0Date, flight1Date)
+                        mes.update({
+                            'flight0': connecting.get('flight0'),
+                            'flight1': connecting.get('flight1'),
+                            'flight0adate': connecting.get('flight0adate'),
+                            'flight0ddate': connecting.get('flight0ddate'),
+                            "flight1ddate": connecting.get('flight1ddate'),
+                            "flight1adate": connecting.get('flight1adate'),
+                            'seats1': Seat.objects.filter(flight=connecting.get('flight0').pk),
+                            'stop': 'yes', })
+                if tripType == '2':
+                    mes = {'tripType': '2', 'seat': seat, "fee": FEE, }
+                    if stop1 == 'no':
+                        mes.update({
+                            'flight1': flight1,
+                            "flight1Date": flight_1date,  # Pass it back to the template
+                            "flight1Class": flight_1class,
+                            'stop1': 'no',
+                            'seats1': Seat.objects.filter(flight=flight1.pk),
+                        })
+                    if stop1 == 'yes':
+                        connecting = handler.connecting_flights(flight0.pk, flight1.pk, flight0Date, flight1Date)
+                        mes.update({
+                            'flight0': connecting.get('flight0'),
+                            'flight1': connecting.get('flight1'),
+                            'flight0adate': connecting.get('flight0adate'),
+                            'flight0ddate': connecting.get('flight0ddate'),
+                            "flight1ddate": connecting.get('flight1ddate'),
+                            "flight1adate": connecting.get('flight1adate'),
+                            'seats1': Seat.objects.filter(flight=connecting.get('flight0').pk),
+                            'stop1': 'yes', })
+                    if stop2 == 'no':
+                        mes.update({
+                            'flight2': flight2,
+                            "flight2Date": flight_2date,
+                            "flight2Class": flight_2class,
+                            'stop2': 'no',
+                            'seats2': Seat.objects.filter(flight=flight2.pk),
+                        })
+                    if stop2 == 'yes':
+                        connecting = handler.connecting_flights(flight2.pk, flight3.pk, flight2Date, flight3Date)
+                        mes.update({
+                            'flight2': connecting.get('flight0'),
+                            'flight3': connecting.get('flight1'),
+                            'flight2adate': connecting.get('flight0adate'),
+                            'flight2ddate': connecting.get('flight0ddate'),
+                            "flight3ddate": connecting.get('flight1ddate'),
+                            "flight3adate": connecting.get('flight1adate'),
+                            'seats2': Seat.objects.filter(flight=connecting.get('flight0').pk),
+                            'stop2': 'yes'
+                        })
             if len(mobile) != 10:
                 messages.warning(request, 'Mobile must be 10 digits')
-                seat = request.POST.get('seat')
-                mes = {
-                    'flight1': flight1,
-                    "flight1Date": flight_1date,  # Pass it back to the template
-                    "flight1Class": flight_1class,
-                    "seat": seat,
-                    "fee": FEE,
-                }
-                if f2:
-                    mes.update({
-                        'flight2': flight2,
-                        "flight2Date": flight_2date,
-                        "flight2Class": flight_2class,
-                    })
+                mes = {}
+                if tripType == '1':
+                    mes = {'tripType': '1', 'seat': seat, "fee": FEE, 'people': people, }
+                    if stop == 'no':
+                        mes.update({
+                            'flight1': flight1,
+                            "flight1Date": flight_1date,  # Pass it back to the template
+                            "flight1Class": flight_1class,
+                            'stop': 'no',
+                            'seats1': Seat.objects.filter(flight=flight1.pk),
+                        })
+                    if stop == 'yes':
+                        connecting = handler.connecting_flights(flight0.pk, flight1.pk, flight0Date, flight1Date)
+                        mes.update({
+                            'flight0': connecting.get('flight0'),
+                            'flight1': connecting.get('flight1'),
+                            'flight0adate': connecting.get('flight0adate'),
+                            'flight0ddate': connecting.get('flight0ddate'),
+                            "flight1ddate": connecting.get('flight1ddate'),
+                            "flight1adate": connecting.get('flight1adate'),
+                            'seats1': Seat.objects.filter(flight=connecting.get('flight0').pk),
+                            'stop': 'yes', })
+                if tripType == '2':
+                    mes = {'tripType': '2', 'seat': seat, "fee": FEE, }
+                    if stop1 == 'no':
+                        mes.update({
+                            'flight1': flight1,
+                            "flight1Date": flight_1date,  # Pass it back to the template
+                            "flight1Class": flight_1class,
+                            'stop1': 'no',
+                            'seats1': Seat.objects.filter(flight=flight1.pk),
+                        })
+                    if stop1 == 'yes':
+                        connecting = handler.connecting_flights(flight0.pk, flight1.pk, flight0Date, flight1Date)
+                        mes.update({
+                            'flight0': connecting.get('flight0'),
+                            'flight1': connecting.get('flight1'),
+                            'flight0adate': connecting.get('flight0adate'),
+                            'flight0ddate': connecting.get('flight0ddate'),
+                            "flight1ddate": connecting.get('flight1ddate'),
+                            "flight1adate": connecting.get('flight1adate'),
+                            'seats1': Seat.objects.filter(flight=connecting.get('flight0').pk),
+                            'stop1': 'yes', })
+                    if stop2 == 'no':
+                        mes.update({
+                            'flight2': flight2,
+                            "flight2Date": flight_2date,
+                            "flight2Class": flight_2class,
+                            'stop2': 'no',
+                            'seats2': Seat.objects.filter(flight=flight2.pk),
+                        })
+                    if stop2 == 'yes':
+                        connecting = handler.connecting_flights(flight2.pk, flight3.pk, flight2Date, flight3Date)
+                        mes.update({
+                            'flight2': connecting.get('flight0'),
+                            'flight3': connecting.get('flight1'),
+                            'flight2adate': connecting.get('flight0adate'),
+                            'flight2ddate': connecting.get('flight0ddate'),
+                            "flight3ddate": connecting.get('flight1ddate'),
+                            "flight3adate": connecting.get('flight1adate'),
+                            'seats2': Seat.objects.filter(flight=connecting.get('flight0').pk),
+                            'stop2': 'yes'
+                        })
                 return render(request, 'book.html', mes)
             passengerscount = request.POST['passengersCount']
             passengers = []
-
             for i in range(1, int(passengerscount) + 1):
                 fname = request.POST[f'passenger{i}FName']
                 lname = request.POST[f'passenger{i}LName']
                 gender = request.POST[f'passenger{i}Gender']
                 passengers.append(Passenger.objects.create(first_name=fname, last_name=lname, gender=gender.lower()))
             coupon = request.POST.get('coupon')
-            ticket2 = None
+            tickets = []
             try:
-                fare_ticket1 = 0
-                fare_ticket2 = 0
-                ticket1 = createticket(request.user,passengers,passengerscount,flight1,flight_1date,flight_1class,coupon,countrycode,email,mobile)
-                ticket1.status = 'PENDING'
-                if f2:
-                    ticket2 = createticket(request.user,passengers,passengerscount,flight2,flight_2date,flight_2class,coupon,countrycode,email,mobile)
-                    ticket2.status = 'PENDING'
-                if(flight_1class == 'Economy'):
-                    fare_ticket1 = (flight1.economy_fare * int(passengerscount))
-                    if f2:
-                        fare_ticket2 = (flight2.economy_fare * int(passengerscount))
-                if (flight_1class == 'Business'):
-                    fare_ticket1 = (flight1.business_fare * int(passengerscount))
-                    if f2:
-                        fare_ticket2 = (flight2.business_fare * int(passengerscount))
-                if (flight_1class == 'First'):
-                    fare_ticket1 = (flight1.first_fare * int(passengerscount))
-                    if f2:
-                        fare_ticket2 = (flight2.first_fare * int(passengerscount))
-                if coupon:
-                    fare_ticket1 = round(fare_ticket1 * (1-coupons[coupon]),2)
-                    fare_ticket2 = round(fare_ticket2 * (1 - coupons[coupon]),2)
-                fare = fare_ticket1 + fare_ticket2
+                if int(request.POST.get('seat_amount1')) > 0:
+                    for s in seats2:
+                        if tripType == '1':
+                            if stop == 'no':
+                                tickets.append(
+                                    createticket(request.user, passengers, passengerscount, flight1, flight_1date,
+                                                 flight_1class, coupon, countrycode, email, mobile, s))
+                            if stop == 'yes':
+                                tickets.append(
+                                    createticket(request.user, passengers, passengerscount, flight0, flight0Date,
+                                                 seat, coupon, countrycode, email, mobile, s))
+                                tickets.append(
+                                    createticket(request.user, passengers, passengerscount, flight1, flight1Date,
+                                                 seat, coupon, countrycode, email, mobile, s))
+                        if tripType == '2':
+                            if stop1 == 'no':
+                                tickets.append(
+                                    createticket(request.user, passengers, passengerscount, flight1, flight_1date,
+                                                 flight_1class, coupon, countrycode, email, mobile, s))
+                            if stop1 == 'yes':
+                                tickets.append(
+                                    createticket(request.user, passengers, passengerscount, flight0, flight0Date,
+                                                 seat, coupon, countrycode, email, mobile, s))
+                                tickets.append(
+                                    createticket(request.user, passengers, passengerscount, flight1, flight1Date,
+                                                 seat, coupon, countrycode, email, mobile, s))
+                            if stop2 == 'no':
+                                tickets.append(
+                                    createticket(request.user, passengers, passengerscount, flight2, flight_2date,
+                                                 flight_2class, coupon, countrycode, email, mobile, s))
+                            if stop2 == 'yes':
+                                tickets.append(
+                                    createticket(request.user, passengers, passengerscount, flight2, flight2Date,
+                                                 seat, coupon, countrycode, email, mobile, s))
+                                tickets.append(
+                                    createticket(request.user, passengers, passengerscount, flight3, flight3Date,
+                                                 seat, coupon, countrycode, email, mobile, s))
+                for s in seats1:
+                    if tripType == '1':
+                        if stop == 'no':
+                            tickets.append(
+                                createticket(request.user, passengers, passengerscount, flight1, flight_1date,
+                                             flight_1class, coupon, countrycode, email, mobile, s))
+                        if stop == 'yes':
+                            tickets.append(
+                                createticket(request.user, passengers, passengerscount, flight0, flight0Date,
+                                             seat, coupon, countrycode, email, mobile, s))
+                            tickets.append(
+                                createticket(request.user, passengers, passengerscount, flight1, flight1Date,
+                                             seat, coupon, countrycode, email, mobile, s))
+                    if tripType == '2':
+                        if stop1 == 'no':
+                            tickets.append(
+                                createticket(request.user, passengers, passengerscount, flight1, flight_1date,
+                                             flight_1class, coupon, countrycode, email, mobile, s))
+                        if stop1 == 'yes':
+                            tickets.append(
+                                createticket(request.user, passengers, passengerscount, flight0, flight0Date,
+                                             seat, coupon, countrycode, email, mobile, s))
+                            tickets.append(
+                                createticket(request.user, passengers, passengerscount, flight1, flight1Date,
+                                             seat, coupon, countrycode, email, mobile, s))
+                        if stop2 == 'no':
+                            tickets.append(
+                                createticket(request.user, passengers, passengerscount, flight2, flight_2date,
+                                             flight_2class, coupon, countrycode, email, mobile, s))
+                        if stop2 == 'yes':
+                            tickets.append(
+                                createticket(request.user, passengers, passengerscount, flight2, flight2Date,
+                                             seat, coupon, countrycode, email, mobile, s))
+                            tickets.append(
+                                createticket(request.user, passengers, passengerscount, flight3, flight3Date,
+                                             seat, coupon, countrycode, email, mobile, s))
+
+                total_fare = sum([t.total_fare for t in tickets])
             except Exception as e:
                 return HttpResponse(e)
-            ticket1.total_fare = fare_ticket1
-            ticket1.save()
-            if f2:
-                ticket2.total_fare = fare_ticket2
-                ticket2.save()
-                return render(request, "payment.html", { ##
-                    'fare': fare + FEE,  ##
-                    'ticket1': ticket1.pk,  ##
-                    'ticket2': ticket2.pk  ##
-                })  ##
-            return render(request, "payment.html", {
-                'fare': fare + FEE,
-                'ticket1': ticket1.pk
-            })
-        else:
-            return HttpResponse("Method must be post.")
+            ticket_ids = ''
+            for ticket in tickets:
+                ticket_ids += str(ticket.pk) + ','
+            ticket_ids = ticket_ids.rstrip(',')
+            res = {
+                'fare': total_fare,
+                'tickets': ticket_ids,
+                'tripType': tripType,
+            }
+            if tripType == '1':
+                if stop == 'yes':
+                    res.update({'stop': stop, 'flight0': flight0, 'flight1': flight1})
+                if stop == 'no':
+                    res.update({'stop': stop, 'flight1': flight1})
+            if tripType == '2':
+                if stop1 == 'yes':
+                    res.update({'stop1': stop1, 'flight0': flight0, 'flight1': flight1})
+                if stop1 == 'no':
+                    res.update({'stop1': stop1, 'flight1': flight1})
+                if stop2 == 'yes':
+                    res.update({'stop2': stop2, 'flight2': flight2, 'flight3': flight3})
+                if stop2 == 'no':
+                    res.update({'stop2': stop2, 'flight2': flight2})
+        return render(request, "payment.html", res)
+    else:
+        return HttpResponseRedirect(reverse('login'))
 
-def createticket(user,passengers,passengerscount,flight1,flight_1date,flight_1class,coupon,countrycode,email,mobile):
+
+def createticket(user, passengers, passengerscount, flight1, flight_1date, flight_1class, coupon, countrycode, email,
+                 mobile, seat):
+    coupons = {'FL928K': 0.3, 'FL239D': 0.4, 'FL138S': 0.2}
     ticket = Ticket.objects.create()
     ticket.user = user
     ticket.ref_no = secrets.token_hex(3).upper()
     for passenger in passengers:
         ticket.passengers.add(passenger)
     ticket.flight = flight1
-    ticket.flight_ddate = datetime(int(flight_1date.split('-')[2]),int(flight_1date.split('-')[1]),int(flight_1date.split('-')[0]))
+    ticket.flight_ddate = datetime(int(flight_1date.split('-')[2]), int(flight_1date.split('-')[1]),
+                                   int(flight_1date.split('-')[0]))
     ###################
-    flight1ddate = datetime(int(flight_1date.split('-')[2]),int(flight_1date.split('-')[1]),int(flight_1date.split('-')[0]),flight1.depart_time.hour,flight1.depart_time.minute)
+    flight1ddate = datetime(int(flight_1date.split('-')[2]), int(flight_1date.split('-')[1]),
+                            int(flight_1date.split('-')[0]), flight1.depart_time.hour, flight1.depart_time.minute)
     flight1adate = (flight1ddate + flight1.duration)
     ###################
-    ticket.flight_adate = datetime(flight1adate.year,flight1adate.month,flight1adate.day)
+    ticket.flight_adate = datetime(flight1adate.year, flight1adate.month, flight1adate.day)
     ffre = 0.0
     if flight_1class.lower() == 'first':
-        ticket.flight_fare = flight1.first_fare*int(passengerscount)
-        ffre = flight1.first_fare*int(passengerscount)
+        ticket.flight_fare = flight1.first_fare * int(passengerscount)
+        ffre = flight1.first_fare * int(passengerscount)
     elif flight_1class.lower() == 'business':
-        ticket.flight_fare = flight1.business_fare*int(passengerscount)
-        ffre = flight1.business_fare*int(passengerscount)
+        ticket.flight_fare = flight1.business_fare * int(passengerscount)
+        ffre = flight1.business_fare * int(passengerscount)
     else:
-        ticket.flight_fare = flight1.economy_fare*int(passengerscount)
-        ffre = flight1.economy_fare*int(passengerscount)
+        ticket.flight_fare = flight1.economy_fare * int(passengerscount)
+        ffre = flight1.economy_fare * int(passengerscount)
     ticket.other_charges = FEE
+    ticket.total_fare = ffre + FEE + 0.0 + seat.price
+    ##########Total(Including coupon)
+    # set status của seat
+    seat.status = 'SELECTED'
+    seat.save()
+    ticket_seat = TicketSeat.objects.create(ticket=ticket, seat=seat)
+    ticket_seat.save()
     if coupon:
-        ticket.coupon_used = coupon                     ##########Coupon
-    ticket.total_fare = ffre+FEE+0.0                    ##########Total(Including coupon)
+        flight1.economy_fare = round(flight1.economy_fare * (1 - coupons[coupon]), 1)
+        flight1.save()
+        ticket.coupon_used = coupon
+        ticket.total_fare = round(ticket.total_fare * (1 - coupons[coupon]), 1)
     ticket.seat_class = flight_1class.lower()
-    ticket.status = 'CANCELLED'
-    ticket.mobile = ('+'+countrycode+' '+mobile)
+    ticket.status = 'PENDING'
+    ticket.mobile = ('+' + countrycode + ' ' + mobile)
     ticket.email = email
+    ticket.save()
     return ticket

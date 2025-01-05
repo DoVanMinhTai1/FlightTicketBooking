@@ -54,12 +54,12 @@
                         </div>
                     </div>
                 </div><div class="v-line"></div>
-                <div class="trip-class">
-                    <div class="return-date-div">
-                        <div class="small-label">Class</div>
-                        <div class="white">{{seat}}</div>
-                    </div>
-                </div>
+<!--                <div class="trip-class">-->
+<!--                    <div class="return-date-div">-->
+<!--                        <div class="small-label">Class</div>-->
+<!--                        <div class="white">{{seat}}</div>-->
+<!--                    </div>-->
+<!--                </div>-->
                 <div class="v-line"></div>
                 <div class="trip-modify">
                     <form action="/" method="POST">
@@ -399,9 +399,9 @@
                                                 <div class="flight-details-btn">
                                                     {% if trip_type == '2' %}
                                                         <input type="radio" class="flight1-radio r-b" data-stop="no" name="test1" value="{{flight.id}}" data-plane='{{flight.plane}}' data-depart='{{flight.depart_time|time:"H:i"}}' data-arrive='{{flight.arrival_time|time:"H:i"}}' data-fare="{% if seat == 'Economy' %} {{flight.economy_fare}} {% elif seat == 'Business' %} {{flight.business_fare}} {% else %} {{flight.first_fare}} {% endif %}" {% if forloop.counter == 1 %}checked{% endif %}>
-
                                                     {% else %}
                                                         <form action="{% url 'review' %}" method="GET" style="display: flex;">
+                                                             <input type="hidden" name="people" value="{{people}}">
                                                             <input type="hidden" name="tripType" value="{{trip_type}}">
                                                             <input type="hidden" name="stop" value="no">
                                                             <input type="hidden" name="flight1Id" value="{{flight.id}}">
@@ -484,6 +484,7 @@
                                                            value="{{flight.0.id}},{{flight.1.id}}" {% if forloop.couter == 1 %}checked{% endif %}>
                                                     {% else %}
                                                     <form action="{% url 'review' %}" method="GET" style="display: flex;">
+                                                         <input type="hidden" name="people" value="{{people}}">
                                                         <input type="hidden" name="tripType" value="{{trip_type}}">
                                                         <input type="hidden" name="stop" value="yes">
                                                         <input type="hidden" name="flight.0.id" value="{{flight.0.id}}">
@@ -847,6 +848,7 @@
                                                             <input type="radio" class="flight2-radio r-b" name="test2" value="{{flight2.id}}" data-stop="no" data-plane='{{flight2.plane}}' data-depart='{{flight2.depart_time|time:"H:i"}}' data-arrive='{{flight2.arrival_time|time:"H:i"}}' data-fare="{% if seat == 'Economy' %} {{flight2.economy_fare}} {% elif seat == 'Business' %} {{flight2.business_fare}} {% else %} {{flight2.first_fare}} {% endif %}" {% if forloop.counter == 1 %}checked{% endif %}>
                                                         {% else %}
                                                             <form action="{% url 'review' %}" method="GET" style="display: flex;">
+                                                                 <input type="hidden" name="people" value="{{people}}">
                                                                 <input type="hidden" name="tripType" value="{{trip_type}}">
                                                                 <input type="hidden" name="stop" value="no">
                                                                 <input type="hidden" name="flight2Id" value="{{flight2.id}}">
@@ -928,6 +930,7 @@
                                                                value="{{flight.0.id}},{{flight.1.id}}" {% if forloop.couter == 1 %}checked{% endif %}>
                                                         {% else %}
                                                         <form action="{% url 'review' %}" method="GET" style="display: flex;">
+                                                             <input type="hidden" name="people" value="{{people}}">
                                                             <input type="hidden" name="tripType" value="{{trip_type}}">
                                                             <input type="hidden" name="stop" value="yes">
                                                             <input type="hidden" name="flight.0.id" value="{{flight.0.id}}">
@@ -1046,20 +1049,20 @@
                             <span>{{destination.code|upper}}</span>&nbsp;&nbsp;@&nbsp;&nbsp;$
                             <span id="select-f1-fare">
                                 {% if seat == "Economy" %}
-                                    {{flights.all.0.economy_fare}}
+                                    {{flights.0.economy_fare}}
                                 {% elif seat == "Business" %}
-                                    {{flights.all.0.business_fare}}
+                                    {{flights.0.business_fare}}
                                 {% else %}
-                                    {{flights.all.0.first_fare}}
+                                    {{flights.0.first_fare}}
                                 {% endif %}
                             </span><!---->
                         </div>
                         <div class="white-2">
-                            <span id="select-f1-plane">{{flights.all.0.plane}}</span><!---->
+                            <span id="select-f1-plane">{{flights.0.plane}}</span><!---->
                             &nbsp;&nbsp;
-                            <span id="select-f1-depart">{{flights.all.0.depart_time | time:"H:i"}}</span><!---->
+                            <span id="select-f1-depart">{{flights.0.depart_time | time:"H:i"}}</span><!---->
                             •
-                            <span id="select-f1-arrive">{{flights.all.0.arrival_time | time:"H:i"}}</span><!---->
+                            <span id="select-f1-arrive">{{flights.0.arrival_time | time:"H:i"}}</span><!---->
                         </div>
                     </div>
                 </div>
@@ -1076,22 +1079,22 @@
 
                                 <span id="select-f2-fare">
                                     {% if seat == "Economy" %}
-                                        {{flights2.all.0.economy_fare}}
+                                        {{flights2.0.economy_fare}}
                                     {% elif seat == "Business" %}
-                                        {{flights2.all.0.business_fare}}
+                                        {{flights2.0.business_fare}}
                                     {% else %}
-                                        {{flights2.all.0.first_fare}}
+                                        {{flights2.0.first_fare}}
                                     {% endif %}
                                 </span><!---->
                             {% endif %}
                         </div>
                         <div class="white-2">
                             {% if flights2 %}
-                                <span id="select-f2-plane">{{flights2.all.0.plane}}</span><!---->
+                                <span id="select-f2-plane">{{flights2.0.plane}}</span><!---->
                                 &nbsp;&nbsp;
-                                <span id="select-f2-depart">{{flights2.all.0.depart_time | time:"H:i"}}</span><!---->
+                                <span id="select-f2-depart">{{flights2.0.depart_time | time:"H:i"}}</span><!---->
                                 •
-                                <span id="select-f2-arrive">{{flights2.all.0.arrival_time | time:"H:i"}}</span><!---->
+                                <span id="select-f2-arrive">{{flights2.0.arrival_time | time:"H:i"}}</span><!---->
                             {% else %}
                                 <span id="select-f2-plane" style="letter-spacing: 2px!important;">--</span><!---->
                             {% endif %}
@@ -1104,23 +1107,23 @@
                             <span>TOTAL FARE</span>
                         </div>
                         <div>
-                            <span>₹
+                            <span>$
                                 <span id="select-total-fare">
                                     {% if flights2 %}
                                         {% if seat == "Economy" %}
-                                            {{flights.all.0.economy_fare | add:flights2.all.0.economy_fare}}
+                                            {{flights2.0.economy_fare | add:flights2.1.economy_fare}}
                                         {% elif seat == "Business" %}
-                                            {{flights.all.0.business_fare | add:flights2.all.0.business_fare}}
+                                            {{flights2.0.business_fare | add:flights2.1.business_fare}}
                                         {% else %}
-                                            {{flights.all.0.first_fare | add:flights2.all.0.first_fare}}
+                                            {{flights2.0.first_fare | add:flights2.1.first_fare}}
                                         {% endif %}
                                     {% else %}
                                         {% if seat == "Economy" %}
-                                            {{flights.all.0.economy_fare}}
+                                            {{flights.0.economy_fare}}
                                         {% elif seat == "Business" %}
-                                            {{flights.all.0.business_fare}}
+                                            {{flights.0.business_fare}}
                                         {% else %}
-                                            {{flights.all.0.first_fare}}
+                                            {{flights.0.first_fare}}
                                         {% endif %}
                                     {% endif %}
                                 </span>
@@ -1132,6 +1135,7 @@
                     <div class="white">
                         <div>
                             <form action="{% url 'review' %}" method="GET">
+                                <input type="hidden" name="people" value="{{people}}">
                                 <input type="hidden" name="tripType" value="{{trip_type}}">
                                 <input type="hidden" name="stop1" id="stop1" value="no">
                                 <input type="hidden" name="stop2" id="stop2" value="no">
@@ -1139,9 +1143,9 @@
                                 <input type="hidden" name="flight.1.date" value="{{depart_date|date:'d-m-Y'}}">
                                 <input type="hidden" name="flight.2.date" value="{{return_date|date:'d-m-Y'}}">
                                 <input type="hidden" name="flight.3.date" value="{{return_date|date:'d-m-Y'}}">
-                                <input type="hidden" name="flight1Id" value="{{flights.all.0.id}}" id="flt1">
+                                <input type="hidden" name="flight1Id" value="{{flights.0.id}}" id="flt1">
                                 <input type="hidden" name="flight1Date" value="{{depart_date|date:'d-m-Y'}}">
-                                <input type="hidden" name="flight2Id" value="{{flights2.all.0.id}}" id="flt2">
+                                <input type="hidden" name="flight2Id" value="{{flights2.0.id}}" id="flt2">
                                 <input type="hidden" name="flight2Date" value="{{return_date|date:'d-m-Y'}}">
                                 <input type="hidden" name="seatClass" value="{{seat}}">
                                 <button class="btn btn-light" type="submit">Continue &#8594;</button>
@@ -1161,19 +1165,19 @@
                                     <span id="select-total-fare-media">
                                         {% if flights2 %}
                                             {% if seat == "Economy" %}
-                                                {{flights.all.0.economy_fare | add:flights2.all.0.economy_fare}}
+                                                {{flights2.0.economy_fare | add:flights2.1.economy_fare}}
                                             {% elif seat == "Business" %}
-                                                {{flights.all.0.business_fare | add:flights2.all.0.business_fare}}
+                                                {{flights2.0.business_fare | add:flights2.1.business_fare}}
                                             {% else %}
-                                                {{flights.all.0.first_fare | add:flights2.all.0.first_fare}}
+                                                {{flights2.0.first_fare | add:flights2.1.first_fare}}
                                             {% endif %}
                                         {% else %}
                                             {% if seat == "Economy" %}
-                                                {{flights.all.0.economy_fare}}
+                                                {{flights.0.economy_fare}}
                                             {% elif seat == "Business" %}
-                                                {{flights.all.0.business_fare}}
+                                                {{flights.0.business_fare}}
                                             {% else %}
-                                                {{flights.all.0.first_fare}}
+                                                {{flights.0.first_fare}}
                                             {% endif %}
                                         {% endif %}
                                     </span>
@@ -1183,6 +1187,7 @@
                         <div class="col-5" style="display: flex;">
                             <div style="margin: auto;">
                                 <form action="{% url 'review' %}" method="GET">
+                                     <input type="hidden" name="people" value="{{people}}">
                                     <input type="hidden" name="tripType" value="{{trip_type}}">
                                     <input type="hidden" name="stop1" id="stop1" value="no">
                                     <input type="hidden" name="stop2" id="stop2" value="no">
@@ -1191,9 +1196,9 @@
                                     <input type="hidden" name="flight.2.date" value="{{return_date|date:'d-m-Y'}}">
                                     <input type="hidden" name="flight.3.date" value="{{return_date|date:'d-m-Y'}}">
                                     <input type="hidden" name="flight.4.date" value="{{return_date|date:'d-m-Y'}}">
-                                    <input type="hidden" name="flight1Id" value="{{flights.all.0.id}}" id="flt1">
+                                    <input type="hidden" name="flight1Id" value="{{flights.0.id}}" id="flt1">
                                     <input type="hidden" name="flight1Date" value="{{depart_date|date:'d-m-Y'}}">
-                                    <input type="hidden" name="flight2Id" value="{{flights2.all.0.id}}" id="flt2">
+                                    <input type="hidden" name="flight2Id" value="{{flights2.0.id}}" id="flt2">
                                     <input type="hidden" name="flight2Date" value="{{return_date|date:'d-m-Y'}}">
                                     <input type="hidden" name="seatClass" value="{{seat}}">
                                     <button class="btn btn-light" type="submit">Continue &#8594;</button>

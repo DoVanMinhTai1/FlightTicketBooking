@@ -27,6 +27,8 @@ class Seat(models.Model):
     status = models.CharField(max_length=20, choices=SEAT_STATUS)
     flight = models.ForeignKey(Flight, on_delete=models.CASCADE)
 
+    class Meta:
+        db_table = 'payment_seat'
 class Passenger(models.Model):
     first_name = models.CharField(max_length=120, null=True)
     last_name = models.CharField(max_length=120, null=True)
@@ -50,7 +52,7 @@ class Ticket(models.Model):
     email = models.EmailField(max_length=45, blank=True)
     status = models.CharField(max_length=45, choices=TICKET_STATUS)
 
-class Ticket_Seat(models.Model):
+class TicketSeat(models.Model):
     seat = models.ForeignKey(Seat, on_delete=models.CASCADE)
     ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE)
 
@@ -67,8 +69,9 @@ class Payment(models.Model):
     expYear = models.IntegerField(null=True)
     cvv =  models.IntegerField(null=True)
     status = models.CharField(default=STATUS[0][1],max_length=20, null=True)
-    ticket_id = models.ForeignKey(Ticket, on_delete=models.CASCADE, null=True)
-    ticket_id2 = models.ForeignKey(Ticket, on_delete=models.CASCADE, null=True,related_name="payment_tickets2")
 
+class PaymentTicket(models.Model):
+    payment = models.ForeignKey(Payment, on_delete=models.CASCADE)
+    ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE)
 
 

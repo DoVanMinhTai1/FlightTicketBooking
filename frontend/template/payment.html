@@ -31,9 +31,37 @@
                    <form action="{% url 'checkout' %}" method="POST">
                         {% csrf_token %}
                         <input type="hidden" name="fare" value="{{fare}}">
-                        <input type="hidden" name="ticket1" value="{{ticket1}}" required>
-                        {% if ticket2 %}
-                            <input type="hidden" name="ticket2" value="{{ticket2}}" required>
+                        <input type="hidden" name="tickets" value="{{tickets}}">
+                        <!-- Điều kiện cho tripType == '1' -->
+                        {% if tripType == '1' %}
+                            {% if stop == 'yes' %}
+                                <input type="hidden" name="stop" value="{{ stop }}">
+                                <input type="hidden" name="flight0" value="{{ flight0.pk }}">
+                                <input type="hidden" name="flight1" value="{{ flight1.pk }}">
+                            {% elif stop == 'no' %}
+                                <input type="hidden" name="stop" value="{{ stop }}">
+                                <input type="hidden" name="flight1" value="{{ flight1.pk }}">
+                            {% endif %}
+                        {% endif %}
+
+                        <!-- Điều kiện cho tripType == '2' -->
+                        {% if tripType == '2' %}
+                            {% if stop1 == 'yes' %}
+                                <input type="hidden" name="stop1" value="{{ stop1 }}">
+                                <input type="hidden" name="flight0" value="{{ flight0.pk }}">
+                                <input type="hidden" name="flight1" value="{{ flight1.pk }}">
+                            {% elif stop1 == 'no' %}
+                                <input type="hidden" name="stop1" value="{{ stop1 }}">
+                                <input type="hidden" name="flight1" value="{{ flight1.pk}}">
+                            {% endif %}
+                            {% if stop2 == 'yes' %}
+                                <input type="hidden" name="stop2" value="{{ stop2 }}">
+                                <input type="hidden" name="flight2" value="{{ flight2.pk }}">
+                                <input type="hidden" name="flight3" value="{{ flight3.pk }}">
+                            {% elif stop2 == 'no' %}
+                                <input type="hidden" name="stop2" value="{{ stop2 }}">
+                                <input type="hidden" name="flight2" value="{{ flight2.pk }}">
+                            {% endif %}
                         {% endif %}
                         <div class="row payment-amount-div">
                             <div class="form-group">

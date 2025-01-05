@@ -31,8 +31,8 @@ class TicketAdmin(admin.ModelAdmin):
 
 # Tùy chỉnh giao diện quản trị cho Payment
 class PaymentAdmin(admin.ModelAdmin):
-    list_display = ('ticket_id', 'fare', 'status', 'card_number', 'card_holder_name', 'expMonth', 'expYear', 'status')  # Cột hiển thị
-    list_filter = ('status', 'ticket_id__flight__origin', 'ticket_id__flight__destination')  # Bộ lọc theo trạng thái thanh toán và chuyến bay
+    list_display = ('fare', 'status', 'card_number', 'card_holder_name', 'expMonth', 'expYear', 'status')  # Cột hiển thị
+    list_filter = ('status',)  # Bộ lọc theo trạng thái thanh toán và chuyến bay
     list_per_page = 10
     class Media:
         css = {

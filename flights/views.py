@@ -27,6 +27,7 @@ def flight(request):
     trip_type = request.GET.get('TripType')
     departdate = request.GET.get('DepartDate')
     depart_date = datetime.strptime(departdate, "%Y-%m-%d")
+    people = request.GET.get('people')
     return_date = None
     if trip_type == '2':
         returndate = request.GET.get('ReturnDate')
@@ -34,8 +35,8 @@ def flight(request):
         flightday2 = Week.objects.get(number=return_date.weekday())  ##
         origin2 = Place.objects.get(code=d_place.upper())  ##
         destination2 = Place.objects.get(code=o_place.upper())  ##
-    seat = request.GET.get('SeatClass')
-
+    # seat = request.GET.get('SeatClass')
+    seat = 'economy'
     flightday = Week.objects.get(number=depart_date.weekday())
     destination = Place.objects.get(code=d_place.upper())
     origin = Place.objects.get(code=o_place.upper())
@@ -51,6 +52,14 @@ def flight(request):
         ).exclude(
             economy_fare=0
         )
+        flights_with_seats = []
+        for fl in flights:
+            # Đếm số ghế trống cho mỗi chuyến bay
+            available_seats = Seat.objects.filter(status='AVAILABLE', flight=fl).count()
+
+            # Kiểm tra xem chuyến bay có đủ ghế cho số người cần
+            if available_seats >= int(people):
+                flights_with_seats.append(fl)
         try:
             max_price = flights.last().economy_fare
             min_price = flights.first().economy_fare
@@ -61,16 +70,32 @@ def flight(request):
         if trip_type == '2':  ##
             flights2 = Flight.objects.filter(depart_day=flightday2, origin=origin2.pk, destination=destination2.pk).exclude(
                 economy_fare=0).order_by('economy_fare')  ##
+            flights_with_seats2 = []
+            for fl in flights2:
+                # Đếm số ghế trống cho mỗi chuyến bay
+                available_seats = Seat.objects.filter(status='AVAILABLE', flight=fl).count()
+
+                # Kiểm tra xem chuyến bay có đủ ghế cho số người cần
+                if available_seats >= int(people):
+                    flights_with_seats2.append(fl)
             try:
                 max_price2 = flights2.last().economy_fare  ##
                 min_price2 = flights2.first().economy_fare  ##
             except:
                 max_price2 = 0  ##
                 min_price2 = 0  ##
-            intermediate_flights2 = handler.find_intermediate_flights(flights2,flightday2, origin2, destination2).get('intermediate_flights')
+            intermediate_flights2 = handler.find_intermediate_flights(flights2,flightday2, origin2, destination2,people).get('intermediate_flights')
     elif seat == 'business':
         flights = Flight.objects.filter(depart_day=flightday, origin=origin, destination=destination).exclude(
             business_fare=0).order_by('business_fare')
+        flights_with_seats = []
+        for fl in flights:
+            # Đếm số ghế trống cho mỗi chuyến bay
+            available_seats = Seat.objects.filter(status='AVAILABLE', flight=fl).count()
+
+            # Kiểm tra xem chuyến bay có đủ ghế cho số người cần
+            if available_seats >= int(people):
+                flights_with_seats.append(fl)
         try:
             max_price = flights.last().business_fare
             min_price = flights.first().business_fare
@@ -81,6 +106,14 @@ def flight(request):
         if trip_type == '2':  ##
             flights2 = Flight.objects.filter(depart_day=flightday2, origin=origin2, destination=destination2).exclude(
                 business_fare=0).order_by('business_fare')  ##
+            flights_with_seats2 = []
+            for fl in flights2:
+                # Đếm số ghế trống cho mỗi chuyến bay
+                available_seats = Seat.objects.filter(status='AVAILABLE', flight=fl).count()
+
+                # Kiểm tra xem chuyến bay có đủ ghế cho số người cần
+                if available_seats >= int(people):
+                    flights_with_seats2.append(fl)
             try:
                 max_price2 = flights2.last().business_fare  ##
                 min_price2 = flights2.first().business_fare  ##
@@ -88,11 +121,19 @@ def flight(request):
                 max_price2 = 0  ##
                 min_price2 = 0  ##
             intermediate_flights2 = handler.find_intermediate_flights(flights2, flightday2, origin2,
-                                                                               destination2).get('intermediate_flights')
+                                                                               destination2,people).get('intermediate_flights')
 
     elif seat == 'first':
         flights = Flight.objects.filter(depart_day=flightday, origin=origin, destination=destination).exclude(
             first_fare=0).order_by('first_fare')
+        flights_with_seats = []
+        for fl in flights:
+            # Đếm số ghế trống cho mỗi chuyến bay
+            available_seats = Seat.objects.filter(status='AVAILABLE', flight=fl).count()
+
+            # Kiểm tra xem chuyến bay có đủ ghế cho số người cần
+            if available_seats >= int(people):
+                flights_with_seats.append(fl)
         try:
             max_price = flights.last().first_fare
             min_price = flights.first().first_fare
@@ -103,6 +144,14 @@ def flight(request):
         if trip_type == '2':  ##
             flights2 = Flight.objects.filter(depart_day=flightday2, origin=origin2, destination=destination2).exclude(
                 first_fare=0).order_by('first_fare')
+            flights_with_seats2 = []
+            for fl in flights2:
+                # Đếm số ghế trống cho mỗi chuyến bay
+                available_seats = Seat.objects.filter(status='AVAILABLE', flight=fl).count()
+
+                # Kiểm tra xem chuyến bay có đủ ghế cho số người cần
+                if available_seats >= int(people):
+                    flights_with_seats2.append(fl)
             try:
                 max_price2 = flights2.last().first_fare  ##
                 min_price2 = flights2.first().first_fare  ##
@@ -110,15 +159,15 @@ def flight(request):
                 max_price2 = 0  ##
                 min_price2 = 0  ##    ##
             intermediate_flights2 = handler.find_intermediate_flights(flights2, flightday2, origin2,
-                                                                               destination2).get('intermediate_flights')
-    intermediate_flights = handler.find_intermediate_flights(flights,flightday, origin, destination).get('intermediate_flights')
+                                                                               destination2,people).get('intermediate_flights')
+    intermediate_flights = handler.find_intermediate_flights(flights,flightday, origin, destination,people).get('intermediate_flights')
     # print(calendar.day_name[depart_date.weekday()])
     if trip_type == '2':
         return render(request, "search.html", {
-            'flights': flights,
+            'flights': flights_with_seats,
             'origin': origin,
             'destination': destination,
-            'flights2': flights2,  ##
+            'flights2': flights_with_seats2,  ##
             'origin2': origin2,  ##
             'destination2': destination2,  ##
             'seat': seat.capitalize(),
@@ -130,11 +179,12 @@ def flight(request):
             'max_price2': math.ceil(max_price2 / 100) * 100,  ##
             'min_price2': math.floor(min_price2 / 100) * 100,
             'intermediate_flights': intermediate_flights,
-            'intermediate_flights2': intermediate_flights2
+            'intermediate_flights2': intermediate_flights2,
+            'people': people,
         })
     else:
         return render(request, "search.html", {
-            'flights': flights,
+            'flights': flights_with_seats,
             'origin': origin,
             'destination': destination,
             'seat': seat.capitalize(),
@@ -143,11 +193,13 @@ def flight(request):
             'return_date': return_date,
             'max_price': math.ceil(max_price / 100) * 100,
             'min_price': math.floor(min_price / 100) * 100,
-            'intermediate_flights': intermediate_flights
+            'intermediate_flights': intermediate_flights,
+            'people': people,
         })
 
 def review(request):
     if request.user.is_authenticated:
+        people = request.GET.get('people')
         if request.GET.get('tripType') == '1':
             if request.GET.get('stop') == 'yes':
                 # Xử lý cho chuyến bay cho nối chuyến
@@ -169,6 +221,7 @@ def review(request):
                         'seats1': Seat.objects.filter(flight=connecting.get('flight0').pk),
                         'stop': 'yes',
                         'tripType': '1',
+                        'people': people,
                     })
             if request.GET.get('stop') == 'no':
                 #Xử lý cho chuyến bay không nối chuyến vẫn giữ nguyên
@@ -188,11 +241,12 @@ def review(request):
                     'tripType': '1',
                     'stop': 'no',
                     'seats1': Seat.objects.filter(flight=flight1.pk),
+                    'people': people,
                 })
         else:
             stop1 = request.GET.get('stop1')
             stop2 = request.GET.get('stop2')
-            re = {'tripType': '2'}
+            re = {'tripType': '2', 'people': people,}
             # Xử lý cho chuyến bay cho nối chuyến
             if stop1 =='yes':
                 flightId = request.GET.get('flight1Id')
@@ -232,7 +286,7 @@ def review(request):
                     "seat": seat,
                     "fee": FEE,
                     'seats2': Seat.objects.filter(flight=connecting.get('flight0').pk),
-                    'stop2': 'yes'
+                    'stop2': 'yes',
                 })
             if stop1 =='yes' and stop2 =='yes':
                 return render(request, "book.html", re)

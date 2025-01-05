@@ -5,10 +5,9 @@ document.addEventListener('DOMContentLoaded', () => {
 function flight_duration() {
     document.querySelectorAll(".duration").forEach(element => {
         let time = element.dataset.value.split(":");
-        element.innerText = time[0]+"h "+time[1]+"m";
+        element.innerText = time[0] + "h " + time[1] + "m";
     });
 }
-
 
 function add_traveller() {
     let div = document.querySelector('.add-traveller-div');
@@ -16,12 +15,12 @@ function add_traveller() {
     let lname = div.querySelector('#lname');
     let gender = div.querySelectorAll('.gender');
     let gender_val = null
-    if(fname.value.trim().length === 0) {
+    if (fname.value.trim().length === 0) {
         alert("Please enter First Name.");
         return false;
     }
 
-    if(lname.value.trim().length === 0) {
+    if (lname.value.trim().length === 0) {
         alert("Please enter Last Name.");
         return false;
     }
@@ -30,12 +29,10 @@ function add_traveller() {
         if (!gender[1].checked) {
             alert("Please select gender.");
             return false;
-        }
-        else {
+        } else {
             gender_val = gender[1].value;
         }
-    }
-    else {
+    } else {
         gender_val = gender[0].value;
     }
 
@@ -46,9 +43,9 @@ function add_traveller() {
                             <span class="traveller-name">${fname.value} ${lname.value}</span><span>,</span>
                             <span class="traveller-gender">${gender_val.toUpperCase()}</span>
                         </div>
-                        <input type="hidden" name="passenger${passengerCount+1}FName" value="${fname.value}">
-                        <input type="hidden" name="passenger${passengerCount+1}LName" value="${lname.value}">
-                        <input type="hidden" name="passenger${passengerCount+1}Gender" value="${gender_val}">
+                        <input type="hidden" name="passenger${passengerCount + 1}FName" value="${fname.value}">
+                        <input type="hidden" name="passenger${passengerCount + 1}LName" value="${lname.value}">
+                        <input type="hidden" name="passenger${passengerCount + 1}Gender" value="${gender_val}">
                         <div class="delete-traveller">
                             <button class="btn" type="button" onclick="del_traveller(this)">
                                 <svg width="1.1em" height="1.1em" viewBox="0 0 16 16" class="bi bi-x-circle" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -59,8 +56,8 @@ function add_traveller() {
                         </div>
                     </div>`;
     div.parentElement.querySelector(".each-traveller-div").innerHTML += traveller;
-    div.parentElement.querySelector("#p-count").value = passengerCount+1;
-    div.parentElement.querySelector(".traveller-head h6 span").innerText = passengerCount+1;
+    div.parentElement.querySelector("#p-count").value = passengerCount + 1;
+    div.parentElement.querySelector(".traveller-head h6 span").innerText = passengerCount + 1;
     div.parentElement.querySelector(".no-traveller").style.display = 'none';
     fname.value = "";
     lname.value = "";
@@ -71,41 +68,78 @@ function add_traveller() {
     let pcount = document.querySelector("#p-count").value;
     let fare = document.querySelector("#basefare").value;
     let fee = document.querySelector("#fee").value;
-    if (parseInt(pcount)!==0) {
-        document.querySelector(".base-fare-value span").innerText = parseInt(fare)*parseInt(pcount);
-        document.querySelector(".total-fare-value span").innerText = (parseInt(fare)*parseInt(pcount))+parseInt(fee);
-    }
+    if (parseInt(pcount) !== 0) {
+        let totalSeatValue = 0;
 
+        // Duyệt qua tất cả các ghế có giá trị và cộng dồn
+        document.querySelectorAll('.seat').forEach(seat => {
+            if (seat.classList.contains('choose')) { // Chỉ tính ghế được chọn
+                totalSeatValue += parseFloat(seat.getAttribute('value'));
+            }
+        });
+        document.querySelector(".base-fare-value span").innerText = parseInt(fare) * parseInt(pcount);
+        document.querySelector(".total-fare-value span").innerText = parseInt(totalSeatValue) + (parseInt(fare) * parseInt(pcount)) + parseInt(fee);
+    }
 }
 
 function del_traveller(btn) {
     let traveller = btn.parentElement.parentElement;
     let tvl = btn.parentElement.parentElement.parentElement.parentElement;
     let cnt = tvl.querySelector("#p-count");
-    cnt.value = parseInt(cnt.value)-1;
+    cnt.value = parseInt(cnt.value) - 1;
     tvl.querySelector(".traveller-head h6 span").innerText = cnt.value;
-    if(parseInt(cnt.value) <= 0) {
+    if (parseInt(cnt.value) <= 0) {
         tvl.querySelector('.no-traveller').style.display = 'block';
     }
     traveller.remove();
-    
+
     let pcount = document.querySelector("#p-count").value;
     let fare = document.querySelector("#basefare").value;
     let fee = document.querySelector("#fee").value;
     if (parseInt(pcount) !== 0) {
-        document.querySelector(".base-fare-value span").innerText = parseInt(fare)*parseInt(pcount);
-        document.querySelector(".total-fare-value span").innerText = (parseInt(fare)*parseInt(pcount))+parseInt(fee);   
+        document.querySelector(".base-fare-value span").innerText = parseInt(fare) * parseInt(pcount);
+        document.querySelector(".total-fare-value span").innerText = (parseInt(fare) * parseInt(pcount)) + parseInt(fee);
     }
 }
 
 function book_submit() {
-    let pcount = document.querySelector("#p-count");
-    if(parseInt(pcount.value) > 0) {
-        return true;
+    // Lấy các tham số và đảm bảo tất cả được chuyển đổi thành số
+    let pcount = parseInt(document.querySelector("#p-count").value) || 0;
+    let people = parseInt(document.getElementById("people").value) || 0;
+    let tripType = parseInt(document.getElementById("tripType").value) || 0;
+    let seatSelected = parseInt(document.getElementById("chosenCount").value) || 0;
+    let seatSelected1 = parseInt(document.getElementById("chosenCount1").value) || 0;
+    // Kiểm tra loại chuyến đi (tripType)
+    if (tripType === 1) {
+        // Loại 1: số ghế phải bằng số người
+        if (people !== seatSelected) {
+            alert(`Buy enough seat for ${people} people!`);
+            return false;
+        }
     }
-    alert("Please add atleast one passenger.")
-    return false;
+    if (tripType === 2) {
+        // Loại 2: số ghế phải bằng số người x 2 (khứ hồi)
+        if (people !== seatSelected) {
+            alert(`Buy ${people} seat for peoples in flight1!`);
+            return false;
+        }
+        if (people !== seatSelected1) {
+            alert(`Buy ${people} seat for peoples in flight2!`);
+            return false;
+        }
+    }
+
+    // Kiểm tra số hành khách phải bằng số người đã chọn
+    if (pcount !== people) {
+        alert("Please add enough passenger equal your people you chose.");
+        return false;
+    }
+    // Nếu tất cả hợp lệ
+    return true;
 }
+
+
+
 let couponApplied = false; // Flag to track if a coupon has been applied
 let couponCodeApplied = ''; // Store the applied coupon code for removal
 let percentDiscount = 1; // No discount applied by default
@@ -115,6 +149,7 @@ function isTodayInRange(startDate, endDate) {
     const today = new Date();
     return today >= new Date(startDate) && today <= new Date(endDate);
 }
+
 function updateTotalFare1() {
     const totalFareContainer = document.querySelector('.total-fare-value span');
 
@@ -193,7 +228,7 @@ function discount() {
                     if (couponElement) {
                         couponElement.remove();
                     }
-                    percentDiscount = 1 /(1 - discount);
+                    percentDiscount = 1 / (1 - discount);
                     updateTotalFare1();
                     // Enable the input field and Apply button again for new coupon
                     couponInput.disabled = false;
@@ -213,6 +248,26 @@ function discount() {
     } else {
         alert('Please enter a valid coupon code.');
     }
+}
+function trip(price) {
+    let tripType = parseInt(document.getElementById("tripType").value) || 0;
+    if(tripType === 1) {
+        let stop = (document.getElementById("stop").value);
+        if(stop === 'yes'){
+           return price*2;
+        }
+    }
+    if(tripType === 2) {
+        let stop1 = (document.getElementById("stop1").value);
+         if(stop1 === 'yes'){
+           return price*2;
+        }
+         let stop2 = (document.getElementById("stop2").value);
+         if(stop2 === 'yes'){
+           return price*2;
+        }
+    }
+    return price;
 }
 
 

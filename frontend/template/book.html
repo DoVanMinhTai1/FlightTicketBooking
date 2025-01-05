@@ -5,6 +5,7 @@
 {% block head %}
     <title>Book | Flight</title>
     <link rel="stylesheet" href="{% static 'css/book_style.css' %}">
+<!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">-->
     <script type="text/javascript" src="{% static 'js/book.js' %}"></script>
 {% endblock %}
 
@@ -19,9 +20,11 @@
     <section class="section section1">
         <form action="{% url 'book' %}" onsubmit="return book_submit()" method="POST">
             {% csrf_token %}
-            <input type="hidden" name="tripType" value='{{tripType}}'>
+            <input type="hidden" name="tripType" value='{{tripType}}' id="tripType">
+             <input type="hidden" name="people" value="{{people}}" id="people">
             {% if tripType == '1' %}
-                 <input type="hidden" name="stop" value='{{stop}}'>
+                 <input type="hidden" name="stop" value='{{stop}}' id="stop">
+                <input type="hidden" name="seat" value="{{seat}}">
                 {% if stop == 'yes' %}
                     <input type="hidden" name="flight.0.id" value='{{flight0.id}}'>
                     <input type="hidden" name="flight.1.id" value='{{flight1.id}}'>
@@ -32,7 +35,6 @@
                          <input type="hidden" name="flight.0.date" value='{{flight0Date}}'>
                          <input type="hidden" name="flight.1.date" value='{{flight1Date}}'>
                     {% endif%}
-                    <input type="hidden" name="seat" value="{{seat}}">
                 {% endif %}
                 {% if stop == 'no' %}
                     {% if flight1Date %}
@@ -40,14 +42,14 @@
                     {% else %}
                         <input type="hidden" name="flight1Date" value='{{flight1ddate | date:"d-m-Y"}}'>
                     {% endif%}
-                        <input type="hidden" name="seat" value="{{seat}}">
                         <input type="hidden" name="flight1" value="{{flight1.id}}">
                         <input type="hidden" name="flight1Class" value="{{seat}}">
                 {% endif %}
             {% endif %}
             {% if tripType == '2' %}
+                 <input type="hidden" name="stop1" value='{{stop1}}' id="stop1">
+                 <input type="hidden" name="seat" value="{{seat}}">
                 {% if stop1 == 'yes' %}
-                    <input type="hidden" name="stop" value='{{stop}}'>
                     <input type="hidden" name="flight.0.id" value='{{flight0.id}}'>
                     <input type="hidden" name="flight.1.id" value='{{flight1.id}}'>
                     {% if flight1Date is None and flight0Date is None %}
@@ -57,9 +59,19 @@
                          <input type="hidden" name="flight.0.date" value='{{flight0Date}}'>
                         <input type="hidden" name="flight.1.date" value='{{flight1Date}}'>
                     {% endif%}
-                    <input type="hidden" name="seat" value="{{seat}}">
                 {% endif %}
-                <input type="hidden" name="stop2" value='{{stop2}}'>
+                {% if stop1 == 'no' %}
+                   {% if flight1Date %}
+                        <input type="hidden" name="flight1Date" value='{{flight1Date}}'>
+                    {% else %}
+                        <input type="hidden" name="flight1Date" value='{{flight1ddate | date:"d-m-Y"}}'>
+                    {% endif%}
+                        <input type="hidden" name="seat" value="{{seat}}">
+                        <input type="hidden" name="flight1" value="{{flight1.id}}">
+                        <input type="hidden" name="flight1Class" value="{{seat}}">
+                {% endif %}
+                <input type="hidden" name="stop2" value='{{stop2}}' id="stop2">
+                <input type="hidden" name="seat" value="{{seat}}">
                 {% if stop2 == 'yes' %}
                     <input type="hidden" name="flight.2.id" value='{{flight2.id}}'>
                     <input type="hidden" name="flight.3.id" value='{{flight3.id}}'>
@@ -70,7 +82,6 @@
                         <input type="hidden" name="flight.2.date" value='{{flight2Date}}'>
                         <input type="hidden" name="flight.3.date" value='{{flight3Date}}'>
                     {% endif%}
-                    <input type="hidden" name="seat" value="{{seat}}">
                 {% endif %}
                 {% if stop2 == 'no' %}
                     <input type="hidden" name="flight2" value="{{flight2.id}}">
@@ -86,7 +97,7 @@
                 <div class="col-8">
                 <div class="ticket-details">
             {% if tripType == '1'%}
-                    <h5>Ticket Details</h5>
+                    <h5>Flight Details</h5>
                     <hr>
                 {% if stop == 'yes' %}
                     <div class="media-airline">
@@ -198,7 +209,7 @@
             {% endif %}
             {% if tripType == '2'%}
                 {% if stop1 == 'yes' %}
-                    <h5>Ticket 1 Details</h5>
+                    <h5>Flight 1 Details</h5>
                     <hr>
                     <div class="media-airline">
                             <div>
@@ -267,7 +278,8 @@
                     </div>
                     {% endif%}
                     {% if stop2 == 'yes' %}
-                        <h5>Ticket 2 Details</h5>
+
+                        <h5>Flight 2 Details</h5>
                         <hr>
                         <div class="media-airline">
                             <div>
@@ -336,7 +348,7 @@
                     </div>
                     {% endif%}
                 {% if stop1 == 'no' %}
-                        <h5>Ticket 1 Details</h5>
+                        <h5>Flight 1 Details</h5>
                         <hr>
                     <!--Round Trip-->
                         <div style="padding: 0 15px;" class="round-seperator"><hr style="border-top: 0.5px dashed rgba(0,0,0,.1);"></div>
@@ -378,7 +390,8 @@
                         </div>
                     {% endif%}
                     {% if stop2 == 'no' %}
-                        <h5>Ticket 1 Details</h5>
+
+                        <h5>Flight 2 Details</h5>
                         <hr>
                         <div style="padding: 0 15px;" class="round-seperator">
                             <hr style="border-top: 0.5px dashed rgba(0,0,0,.1);">
@@ -437,7 +450,7 @@
       <div class="modal-content">
         <!-- Modal Header -->
         <div class="modal-header">
-          <h5 class="modal-title" id="myModalLabel">Flight Seat Map: Ticket 1</h5>
+          <h5 class="modal-title" id="myModalLabel">Flight Seat Map: Flight 1</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -524,103 +537,107 @@
         </div>
       </div>
     </div>
-                    </div>
+  </div>
                     {% if flight2 %}
                       <!-- Modal -->
-  <div class="modal fade" id="myModal1" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal fade" id="myModal1" tabindex="-1" aria-labelledby="myModalLabel1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
-      <div class="modal-content">
+        <div class="modal-content">
 
-        <!-- Modal Header -->
-        <div class="modal-header">
-          <h5 class="modal-title" id="myModalLabel1">Flight Seat Map: Ticket 2</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h5 class="modal-title" id="myModalLabel1">Flight Seat Map: Flight 2</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
 
-        <!-- Modal Body -->
-        <div class="modal-body">
-          <div class="container">
-            <div class="row">
-                <!-- Left Area: First Class -->
-                <div class="col-4">
-                    <div class="area-title">First</div>
-                    <div class="area">
-                        {% for seat in seats2 %}
-                            {% if seat.type == 'first' %}
-                                {% if seat.status == 'SELECTED'%}
-                                    <div class="seat selected" value="{{ seat.price }}">{{ seat.seat_name }}</div>
-                                {% else%}
-                                    <div class="seat" value="{{ seat.price }}">{{ seat.seat_name }}</div>
-                                {% endif%}
-                                <input type="hidden"  value="{{seat.id}}">
-                            {% endif %}
-                        {% endfor %}
+            <!-- Modal Body -->
+            <div class="modal-body">
+                <div class="container">
+                    <div class="row">
+                        <!-- Left Area: First Class -->
+                        <div class="col-4">
+                            <div class="area-title">First</div>
+                            <div class="area">
+                                {% for seat in seats2 %}
+                                    {% if seat.type == 'first' %}
+                                        {% if seat.status == 'SELECTED'%}
+                                            <div class="seat1 selected" value="{{ seat.price }}">{{ seat.seat_name }}</div>
+                                        {% else %}
+                                            <div class="seat1" value="{{ seat.price }}">{{ seat.seat_name }}</div>
+                                        {% endif %}
+                                        <input type="hidden"  value="{{seat.id}}">
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Center Area: Business Class -->
+                        <div class="col-4">
+                            <div class="area-title">Business</div>
+                            <div class="area">
+                                {% for seat in seats2 %}
+                                    {% if seat.type == 'business' %}
+                                        {% if seat.status == 'SELECTED'%}
+                                            <div class="seat1 selected" value="{{ seat.price }}">{{ seat.seat_name }}</div>
+                                        {% else %}
+                                            <div class="seat1" value="{{ seat.price }}">{{ seat.seat_name }}</div>
+                                        {% endif %}
+                                        <input type="hidden"  value="{{seat.id}}">
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Right Area: Economy Class -->
+                        <div class="col-4">
+                            <div class="area-title">Economy</div>
+                            <div class="area">
+                                {% for seat in seats2 %}
+                                    {% if seat.type == 'economy' %}
+                                       {% if seat.status == 'SELECTED'%}
+                                            <div class="seat1 selected" value="{{ seat.price }}">{{ seat.seat_name }}</div>
+                                        {% else %}
+                                            <div class="seat1" value="{{ seat.price }}">{{ seat.seat_name }}</div>
+                                        {% endif %}
+                                        <input type="hidden"  value="{{seat.id}}">
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Legend -->
+                    <div class="legend">
+                        <div class="legend-item">
+                            <div class="seat1 selected" style="background-color: #fdeec3;"></div> <span>Your seat</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="seat1 selected"></div> <span>Selected</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="seat1 selected" style="background-color: #DC4C64;"></div> <span>Available</span>
+                        </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Center Area: Business Class -->
-                <div class="col-4">
-                    <div class="area-title">Business</div>
-                    <div class="area">
-                        {% for seat in seats2 %}
-                            {% if seat.type == 'business' %}
-                                {% if seat.status == 'SELECTED'%}
-                                    <div class="seat selected" value="{{ seat.price }}">{{ seat.seat_name }}</div>
-                                {% else%}
-                                    <div class="seat" value="{{ seat.price }}">{{ seat.seat_name }}</div>
-                                {% endif%}
-                                <input type="hidden"  value="{{seat.id}}">
-                            {% endif %}
-                        {% endfor %}
-                    </div>
+            <!-- Modal Footer -->
+            <div class="modal-footer">
+                <div id="seat-notification1" class="notification">
+                    You can only choose one seat for all flights. Your selection is now final.
+                </div>
+                <div id="count-display1" class="ms-auto">
+                    Money: <span id="count1">0</span>
                 </div>
 
-                <!-- Right Area: Economy Class -->
-                <div class="col-4">
-                    <div class="area-title">Economy</div>
-                    <div class="area">
-                        {% for seat in seats2 %}
-                            {% if seat.type == 'economy' %}
-                               {% if seat.status == 'SELECTED'%}
-                                    <div class="seat selected" value="{{ seat.price }}">{{ seat.seat_name }}</div>
-                                {% else%}
-                                    <div class="seat" value="{{ seat.price }}">{{ seat.seat_name }}</div>
-                                {% endif%}
-                                <input type="hidden"  value="{{seat.id}}">
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-                </div>
+                <!-- Hidden input container for selected seats -->
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
             </div>
-            <!-- Legend -->
-            <div class="legend">
-                <div class="legend-item">
-                <div class="seat selected" style="background-color: #fdeec3;"></div> <span>Your seat</span>
-              </div>
-              <div class="legend-item">
-                <div class="seat selected"></div> <span>Selected</span>
-              </div>
-              <div class="legend-item">
-                <div class="seat selected" style="background-color: #DC4C64;"></div> <span>Available</span>
-              </div>
-            </div>
-          </div>
         </div>
-       <!-- Modal Footer -->
-        <div class="modal-footer">
-            <div id="seat-notification" class="notification">
-                You can only choose once seat for all flights. Your selection is now final.
-            </div>
-             <div id="count-display" class="ms-auto">
-                Money: <span id="count">0</span>
-            </div>
-            <button type="button" class="btn btn-danger" data-dismiss="modal" >Close</button>
-        </div>
-      </div>
     </div>
-                    </div>
+</div>
+
                     {% endif%}
                 </div>
                 <div class="traveller-details">
@@ -1060,8 +1077,11 @@
                         <div class="row surcharges" id="seatSelected">
 
                         </div>
-                        <input type="hidden" id="chosenCount" name="seat_amount">
+                        <div class="row surcharges" id="seatSelected1">
 
+                        </div>
+                        <input type="hidden" id="chosenCount" name="seat_amount" value="0">
+                        <input type="hidden" id="chosenCount1" name="seat_amount1" value="0">
                         <hr>
                         <div class="total-fare">
                             <div class="total-fare-label">Total Fare: </div>
@@ -1184,6 +1204,29 @@
 .seat.choose {
   background-color: #fdeec3; /* Color for currently choosing */
 }
+.seat1 {
+  width: 40px;
+  height: 40px;
+  background-color: #DC4C64; /* Default color for available seat */
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 2px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+/* Style for selected seat (after choosing) for return trip */
+.seat1.selected {
+  background-color: #a9d1d9; /* Color for selected seat (chosen and reserved) for return trip */
+  cursor: not-allowed;
+}
+
+/* Style for chosen seat (before confirming selection) for return trip */
+.seat1.choose {
+  background-color: #fdeec3; /* Color for currently choosing (return trip) */
+}
 
 /* Layout for area grid of seats */
 .area {
@@ -1223,11 +1266,14 @@
   width: 20px;
   height: 20px;
 }
+.legend-item .seat1 {
+  width: 20px;
+  height: 20px;
+}
 </style>
 <script>
     let selectedCount = 0;
 let amount_seat = 0;
-let previousTotalFare = parseFloat(document.querySelector('.total-fare-value span').textContent.replace(/[^\d.-]/g, ''));
 let previousSelectedSeats = [];  // Mảng lưu trữ các ghế đã chọn trước đó
 
 // Add click event to all seats
@@ -1235,8 +1281,8 @@ document.querySelectorAll('.seat').forEach(seat => {
   seat.addEventListener('click', () => {
     let seatValue = parseInt(seat.getAttribute('value'));
     const seatId = seat.nextElementSibling.value;
-    const seatPrice = parseFloat(seat.getAttribute('value'));
-
+    const seatPrice = trip(parseFloat(seat.getAttribute('value')));
+    console.log(seatPrice);
     // Cập nhật trạng thái ghế
     if (!seat.classList.contains('selected')) {
       if (!seat.classList.contains('choose')) {
@@ -1275,13 +1321,12 @@ document.querySelectorAll('.seat').forEach(seat => {
   });
 });
 
-// Hàm cập nhật tổng tiền khi ghế thay đổi
 function updateTotalFare() {
   const seatSelectedContainer = document.getElementById('seatSelected');
-  const totalFareContainer = document.querySelector('.total-fare-value');
+  let totalFareContainer = document.querySelector('.total-fare-value span');
 
   // Lấy giá trị tổng tiền hiện tại từ giao diện
-  let totalFare = previousTotalFare;
+  let totalFare = 0;
   let currentSelectedSeats = []; // Mảng lưu trữ các ghế hiện tại được chọn
 
   seatSelectedContainer.innerHTML = ''; // Clear existing content
@@ -1297,7 +1342,7 @@ function updateTotalFare() {
   document.querySelectorAll('.seat.choose').forEach(seat => {
     const seatId = seat.nextElementSibling.value;
     const seatName = seat.textContent;
-    let seatPrice = parseFloat(seat.getAttribute('value'));
+    let seatPrice = trip(parseFloat(seat.getAttribute('value')));
     // Add seat to currentSelectedSeats array
     if (!currentSelectedSeats.includes(seatId)) {
       currentSelectedSeats.push(seatId);
@@ -1323,12 +1368,119 @@ function updateTotalFare() {
   });
 
   // Update previousSelectedSeats with current selection for future comparison
-  totalFare = totalFare * percentDiscount;
+    let fare = document.querySelector(".base-fare-value span").textContent;
+    let fee = document.querySelector("#fee").value;
+  totalFare = (totalFare + parseInt(fare) + parseInt(fee)) * percentDiscount;
   // Update the total fare in the UI
-  totalFareContainer.innerHTML = `$ <span>${totalFare.toFixed(1)}</span>`;
+  totalFareContainer.innerText = totalFare.toFixed(1);
 
   // Update the seat count
   document.getElementById('chosenCount').value = currentSelectedSeats.length;
+}
+</script>
+<script>
+    let selectedCount1 = 0;
+let amount_seat1 = 0;
+let previousSelectedSeats1 = [];  // Array to store previously selected seats for the return flight
+
+
+// Add click event to all seats in the return flight
+document.querySelectorAll('.seat1').forEach(seat => {
+  seat.addEventListener('click', () => {
+    let seatValue = parseInt(seat.getAttribute('value'));
+    const seatId = seat.nextElementSibling.value;
+    const seatPrice = parseFloat(seat.getAttribute('value'));
+
+    // Update the seat status for the return flight
+    if (!seat.classList.contains('selected')) {
+      if (!seat.classList.contains('choose')) {
+        seat.classList.add('choose'); // Add 'choose' class when the seat is selected
+        selectedCount1 += seatValue;
+        amount_seat1 += 1;
+      } else {
+        seat.classList.remove('choose'); // Remove 'choose' class if the seat is deselected
+        selectedCount1 -= seatValue;
+        amount_seat1 -= 1;
+      }
+
+      // Update the notification and total amount
+      document.getElementById('count1').textContent = selectedCount1;
+      document.getElementById('chosenCount1').value = amount_seat1;
+
+      // Update hidden input for selected seats in the return flight
+      const seatSelectedContainer1 = document.getElementById('seatSelected1');
+      if (seat.classList.contains('choose')) {
+        const hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.name = `selectedSeat_${seatId}`;
+        hiddenInput.value = seatId;
+        seatSelectedContainer1.appendChild(hiddenInput);
+      } else {
+        // Remove the hidden input if the seat is deselected
+        const hiddenInput = seatSelectedContainer1.querySelector(`input[value='${seatId}']`);
+        if (hiddenInput) {
+          seatSelectedContainer1.removeChild(hiddenInput);
+        }
+      }
+
+      // Update the total fare for the return flight
+      updateTotalFare2();
+    }
+  });
+});
+
+function updateTotalFare2() {
+  const seatSelectedContainer1 = document.getElementById('seatSelected1');
+  let totalFareContainer1 = document.querySelector('.total-fare-value span');
+
+  let totalFare = 0;
+  let currentSelectedSeats1 = []; // Array to store currently selected seats for the return flight
+
+  seatSelectedContainer1.innerHTML = ''; // Clear existing content
+
+  // Add the "Seat & Surcharges:" label
+  let surchargeLabelDiv = document.createElement('div');
+  surchargeLabelDiv.classList.add('surcharges-label');
+  surchargeLabelDiv.textContent = 'Seat & Surcharges (Return):';
+  seatSelectedContainer1.appendChild(surchargeLabelDiv);
+
+  // Loop through all selected seats for the return flight
+  document.querySelectorAll('.seat1.choose').forEach(seat => {
+    const seatId = seat.nextElementSibling.value;
+    const seatName = seat.textContent;
+    let seatPrice = trip(parseFloat(seat.getAttribute('value')));
+    // Add seat to the currentSelectedSeats1 array
+    if (!currentSelectedSeats1.includes(seatId)) {
+      currentSelectedSeats1.push(seatId);
+
+      // Create hidden input for selected seat
+      const hiddenInput = document.createElement('input');
+      hiddenInput.type = 'hidden';
+      hiddenInput.name = `selectedSeat1_${currentSelectedSeats1.length}`;
+      hiddenInput.value = seatId;
+      seatSelectedContainer1.appendChild(hiddenInput);
+
+      // Create surcharge value div for the return flight seat
+      const surchargeValueDiv1 = document.createElement('div');
+      surchargeValueDiv1.classList.add('surcharges-value');
+      surchargeValueDiv1.innerHTML = `${seatName} - $<span>${seatPrice*percentDiscount}</span>`;
+      seatSelectedContainer1.appendChild(surchargeValueDiv1);
+
+
+      totalFare += seatPrice; // Add seat price to total fare
+    }
+  });
+
+  // Update the total fare with the base fare and fee for the return flight
+  let fare1 = document.querySelector(".base-fare-value1 span").textContent;
+  let fee1 = document.querySelector("#fee1").value;
+  totalFare = parseFloat(fare1) + parseFloat(fee1) + totalFare;
+
+  // Update the total fare in the UI
+  totalFareContainer1.innerText = totalFare.toFixed(1);
+
+  // Update the seat count
+  document.getElementById('chosenCount1').value = currentSelectedSeats1.length;
 }
 
 </script>

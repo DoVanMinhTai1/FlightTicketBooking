@@ -7,7 +7,7 @@ from payment.models import Ticket
 
 def bookings(request):
     if request.user.is_authenticated:
-        tickets = Ticket.objects.filter(user=request.user).order_by('-booking_date')
+        tickets = Ticket.objects.filter(user=request.user).order_by('booking_date')
         return render(request, 'bookings.html', {
             'page': 'bookings',
             'tickets': tickets
