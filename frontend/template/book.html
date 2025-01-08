@@ -945,6 +945,16 @@
                     <div class="price-details">
                         <h5>Fare Summary</h5>
                         <hr>
+                        <div class="row">
+                            <div class="currency-switcher">
+                                <label for="currency">Choose currency: </label>
+                                <select id="currency" onchange="updateCurrency ()">
+                                <option value="USD" selected>USD ($)</option>
+                                <option value="VND">VND (₫)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <hr>
                         <div class="row base-fare">
                             <div class="base-fae-label">Base Fare: </div>
                             <div class="base-fare-value">
@@ -1273,215 +1283,422 @@
 </style>
 <script>
     let selectedCount = 0;
-let amount_seat = 0;
-let previousSelectedSeats = [];  // Mảng lưu trữ các ghế đã chọn trước đó
+    let amount_seat = 0;
+    let previousSelectedSeats = [];  // Mảng lưu trữ các ghế đã chọn trước đó
 
-// Add click event to all seats
-document.querySelectorAll('.seat').forEach(seat => {
-  seat.addEventListener('click', () => {
-    let seatValue = parseInt(seat.getAttribute('value'));
-    const seatId = seat.nextElementSibling.value;
-    const seatPrice = trip(parseFloat(seat.getAttribute('value')));
-    console.log(seatPrice);
-    // Cập nhật trạng thái ghế
-    if (!seat.classList.contains('selected')) {
-      if (!seat.classList.contains('choose')) {
-        seat.classList.add('choose'); // Thêm lớp 'choose' nếu ghế được chọn
-        selectedCount += seatValue;
-        amount_seat += 1;
-      } else {
-        seat.classList.remove('choose'); // Loại bỏ lớp 'choose' nếu ghế bị bỏ chọn
-        selectedCount -= seatValue;
-        amount_seat -= 1;
-      }
+    // Add click event to all seats
+    document.querySelectorAll('.seat').forEach(seat => {
+        seat.addEventListener('click', () => {
+            let seatValue = parseInt(seat.getAttribute('value'));
+            const seatId = seat.nextElementSibling.value;
+            const seatPrice = trip(parseFloat(seat.getAttribute('value')));
+            console.log(seatPrice);
+            // Cập nhật trạng thái ghế
+            if (!seat.classList.contains('selected')) {
+                if (!seat.classList.contains('choose')) {
+                    seat.classList.add('choose'); // Thêm lớp 'choose' nếu ghế được chọn
+                    selectedCount += seatValue;
+                    amount_seat += 1;
+                } else {
+                    seat.classList.remove('choose'); // Loại bỏ lớp 'choose' nếu ghế bị bỏ chọn
+                    selectedCount -= seatValue;
+                    amount_seat -= 1;
+                }
 
-      // Cập nhật thông báo ghế đã chọn và tổng tiền
-      document.getElementById('count').textContent = selectedCount;
-      document.getElementById('chosenCount').value = amount_seat;
+                // Cập nhật thông báo ghế đã chọn và tổng tiền
+                document.getElementById('count').textContent = selectedCount;
+                document.getElementById('chosenCount').value = amount_seat;
 
-      // Cập nhật input hidden cho ghế được chọn
-      const seatSelectedContainer = document.getElementById('seatSelected');
-      if (seat.classList.contains('choose')) {
-        const hiddenInput = document.createElement('input');
-        hiddenInput.type = 'hidden';
-        hiddenInput.name = `selectedSeat_${seatId}`;
-        hiddenInput.value = seatId;
-        seatSelectedContainer.appendChild(hiddenInput);
-      } else {
-        // Loại bỏ input hidden nếu ghế bị bỏ chọn
-        const hiddenInput = seatSelectedContainer.querySelector(`input[value='${seatId}']`);
-        if (hiddenInput) {
-          seatSelectedContainer.removeChild(hiddenInput);
+                // Cập nhật input hidden cho ghế được chọn
+                const seatSelectedContainer = document.getElementById('seatSelected');
+                if (seat.classList.contains('choose')) {
+                    const hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.name = `selectedSeat_${seatId}`;
+                    hiddenInput.value = seatId;
+                    seatSelectedContainer.appendChild(hiddenInput);
+                } else {
+                    // Loại bỏ input hidden nếu ghế bị bỏ chọn
+                    const hiddenInput = seatSelectedContainer.querySelector(`input[value='${seatId}']`);
+                    if (hiddenInput) {
+                        seatSelectedContainer.removeChild(hiddenInput);
+                    }
+                }
+
+                // Cập nhật lại tổng tiền
+                updateTotalFare();
+            }
+        });
+    });
+
+    function updateTotalFare() {
+        const seatSelectedContainer = document.getElementById('seatSelected');
+        let totalFareContainer = document.querySelector('.total-fare-value span');
+
+        // Lấy giá trị tổng tiền hiện tại từ giao diện
+        let totalFare = 0;
+        let currentSelectedSeats = []; // Mảng lưu trữ các ghế hiện tại được chọn
+
+        seatSelectedContainer.innerHTML = ''; // Clear existing content
+
+        // Add the "Seat & Surcharges:" label
+        let surchargeLabelDiv = document.createElement('div');
+        surchargeLabelDiv.classList.add('surcharges-label');
+        surchargeLabelDiv.textContent = 'Seat & Surcharges:';
+        seatSelectedContainer.appendChild(surchargeLabelDiv);
+
+        let countSeat = 1;
+        // Loop through all selected seats and add their price to totalFare
+        document.querySelectorAll('.seat.choose').forEach(seat => {
+            const seatId = seat.nextElementSibling.value;
+            const seatName = seat.textContent;
+            let seatPrice = trip(parseFloat(seat.getAttribute('value')));
+            const currencySelect = document.getElementById('currency');  // Define the variable here
+            const selectedCurrency = currencySelect.value;
+
+            // Set the exchange rate based on the selected currency
+            const exchangeRate = exchangeRates[selectedCurrency];
+
+            // Apply currency conversion if necessary
+            if (currencySelect.value === 'VND') {
+                seatPrice *= exchangeRate; // Convert from USD to VND
+
+            }
+            function formatVND(value) {
+                return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.'); // Thêm dấu chấm
+            }
+            // Add seat to currentSelectedSeats array
+            if (!currentSelectedSeats.includes(seatId)) {
+                currentSelectedSeats.push(seatId);
+
+                // Create hidden input for selected seat
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = `selectedSeat_${countSeat}`;
+                hiddenInput.value = seatId;
+                seatSelectedContainer.appendChild(hiddenInput);
+
+                // Create surcharge value div for the seat
+                const surchargeValueDiv = document.createElement('div');
+                surchargeValueDiv.classList.add('surcharges-value');
+                surchargeValueDiv.innerHTML = `${seatName} - $<span>${(seatPrice * percentDiscount)}</span>`;
+                seatSelectedContainer.appendChild(surchargeValueDiv);
+
+                totalFare += seatPrice;
+                console.log(totalFare);
+                
+                // Increment seat count
+                countSeat++;
+            }
+        });
+
+        // Define the variable here
+        //  fare = document.querySelector(".base-fare-value span").textContent;
+        //  feeElement = document.querySelector(".row.surcharges .surcharges-value span");
+
+        //  currencySelect = document.getElementById('currency');  // Define the variable here
+        // let fee;  // Declare fee outside the condition to make it accessible later
+
+        // Get fare and fee elements
+        let fare = document.querySelector(".base-fare-value span").textContent;
+        let feeElement = document.querySelector(".row.surcharges .surcharges-value span");
+        const currencySelect = document.getElementById('currency');  // Get the currency select element
+        let fee;  // Declare fee variable
+        let cleanedFeeText 
+        if(currencySelect.value === 'VND') {
+
+            totalFare = parseFloat(totalFare);
+            console.log("oke here 1");
+            console.log("1a" +totalFare);
+            
+
+        } else {
+            totalFare = parseInt(totalFare);
+            console.log("oke here");
+            console.log("1a" +totalFare);
+            
         }
-      }
+        // totalFare = parseFloat(totalFare);
 
-      // Cập nhật lại tổng tiền
-      updateTotalFare();
+        // Clean up feeElement text to remove any currency symbol (e.g., ₫)
+        if(currencySelect.value === 'USD') {
+         cleanedFeeText = feeElement.textContent;
+    } else {
+         cleanedFeeText = feeElement.textContent.replace(/[^\d.-]/g, '');
+
     }
-  });
-});
+        // Parse the fee according to the selected currency
+        if (currencySelect.value === 'USD') {
+            fee = parseInt(cleanedFeeText); // Parse fee as an integer if USD
+        } else {
+            fee = (cleanedFeeText.replace(/[^\d-]/g, '')); // For other currencies, you can adjust logic if needed
+        }
+        // Clean up and parse the fare as well (in case it has currency symbols like ₫)
+        let cleanedFare = fare;
+        let parsedFare
+        if(currencySelect.value === 'USD') {
+         parsedFare = parseFloat(cleanedFare); // Or use parseFloat if necessary
+        } else {
+             parsedFare = (cleanedFare.replace(/[^\d-]/g, '')) ;
+        }
+        console.log('first ' + parsedFare);
+        console.log('first ' + fee);
 
-function updateTotalFare() {
-  const seatSelectedContainer = document.getElementById('seatSelected');
-  let totalFareContainer = document.querySelector('.total-fare-value span');
+        // Initialize totalFare (you should adjust this depending on previous calculation)
+        // totalFare = 0;
+        console.log("Total Fare:", totalFare);
+        console.log("Fare:", parsedFare);
+        console.log("Fee:", fee);
+        // Calculate totalFare based on selected currency
+        totalFare = parseInt(totalFare);
+        parsedFare = parseInt(parsedFare);
+        fee = parseInt(fee);
+        totalFare = (totalFare + parsedFare + fee);
 
-  // Lấy giá trị tổng tiền hiện tại từ giao diện
-  let totalFare = 0;
-  let currentSelectedSeats = []; // Mảng lưu trữ các ghế hiện tại được chọn
+       
 
-  seatSelectedContainer.innerHTML = ''; // Clear existing content
 
-  // Add the "Seat & Surcharges:" label
-  let surchargeLabelDiv = document.createElement('div');
-  surchargeLabelDiv.classList.add('surcharges-label');
-  surchargeLabelDiv.textContent = 'Seat & Surcharges:';
-  seatSelectedContainer.appendChild(surchargeLabelDiv);
 
-  let countSeat = 1;
-  // Loop through all selected seats and add their price to totalFare
-  document.querySelectorAll('.seat.choose').forEach(seat => {
-    const seatId = seat.nextElementSibling.value;
-    const seatName = seat.textContent;
-    let seatPrice = trip(parseFloat(seat.getAttribute('value')));
-    // Add seat to currentSelectedSeats array
-    if (!currentSelectedSeats.includes(seatId)) {
-      currentSelectedSeats.push(seatId);
 
-      // Create hidden input for selected seat
-      const hiddenInput = document.createElement('input');
-      hiddenInput.type = 'hidden';
-      hiddenInput.name = `selectedSeat_${countSeat}`;
-      hiddenInput.value = seatId;
-      seatSelectedContainer.appendChild(hiddenInput);
+        // Update the total fare in the UI
+        const selectedCurrency = document.getElementById('currency').value; // Lấy loại tiền tệ đã chọn
+        function formatVND(value) {
+            return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.'); // Thêm dấu chấm
+        }
+        totalFareContainer.innerText = selectedCurrency === 'USD' ? totalFare.toFixed(1) : `${formatVND(Math.round(totalFare))}₫`;
 
-      // Create surcharge value div for the seat
-      const surchargeValueDiv = document.createElement('div');
-      surchargeValueDiv.classList.add('surcharges-value');
-      surchargeValueDiv.innerHTML = `${seatName} - $<span>${seatPrice*percentDiscount}</span>`;
-      seatSelectedContainer.appendChild(surchargeValueDiv);
-
-      totalFare += seatPrice;
-
-      // Increment seat count
-      countSeat++;
+        // Update the seat count
+        document.getElementById('chosenCount').value = currentSelectedSeats.length;
     }
-  });
 
-  // Update previousSelectedSeats with current selection for future comparison
-    let fare = document.querySelector(".base-fare-value span").textContent;
-    let fee = document.querySelector("#fee").value;
-  totalFare = (totalFare + parseInt(fare) + parseInt(fee)) * percentDiscount;
-  // Update the total fare in the UI
-  totalFareContainer.innerText = totalFare.toFixed(1);
-
-  // Update the seat count
-  document.getElementById('chosenCount').value = currentSelectedSeats.length;
-}
 </script>
 <script>
     let selectedCount1 = 0;
-let amount_seat1 = 0;
-let previousSelectedSeats1 = [];  // Array to store previously selected seats for the return flight
+    let amount_seat1 = 0;
+    let previousSelectedSeats1 = [];  // Array to store previously selected seats for the return flight
 
 
-// Add click event to all seats in the return flight
-document.querySelectorAll('.seat1').forEach(seat => {
-  seat.addEventListener('click', () => {
-    let seatValue = parseInt(seat.getAttribute('value'));
-    const seatId = seat.nextElementSibling.value;
-    const seatPrice = parseFloat(seat.getAttribute('value'));
+    // Add click event to all seats in the return flight
+    document.querySelectorAll('.seat1').forEach(seat => {
+        seat.addEventListener('click', () => {
+            let seatValue = parseInt(seat.getAttribute('value'));
+            const seatId = seat.nextElementSibling.value;
+            const seatPrice = parseFloat(seat.getAttribute('value'));
 
-    // Update the seat status for the return flight
-    if (!seat.classList.contains('selected')) {
-      if (!seat.classList.contains('choose')) {
-        seat.classList.add('choose'); // Add 'choose' class when the seat is selected
-        selectedCount1 += seatValue;
-        amount_seat1 += 1;
-      } else {
-        seat.classList.remove('choose'); // Remove 'choose' class if the seat is deselected
-        selectedCount1 -= seatValue;
-        amount_seat1 -= 1;
-      }
+            // Update the seat status for the return flight
+            if (!seat.classList.contains('selected')) {
+                if (!seat.classList.contains('choose')) {
+                    seat.classList.add('choose'); // Add 'choose' class when the seat is selected
+                    selectedCount1 += seatValue;
+                    amount_seat1 += 1;
+                } else {
+                    seat.classList.remove('choose'); // Remove 'choose' class if the seat is deselected
+                    selectedCount1 -= seatValue;
+                    amount_seat1 -= 1;
+                }
 
-      // Update the notification and total amount
-      document.getElementById('count1').textContent = selectedCount1;
-      document.getElementById('chosenCount1').value = amount_seat1;
+                // Update the notification and total amount
+                document.getElementById('count1').textContent = selectedCount1;
+                document.getElementById('chosenCount1').value = amount_seat1;
 
-      // Update hidden input for selected seats in the return flight
-      const seatSelectedContainer1 = document.getElementById('seatSelected1');
-      if (seat.classList.contains('choose')) {
-        const hiddenInput = document.createElement('input');
-        hiddenInput.type = 'hidden';
-        hiddenInput.name = `selectedSeat_${seatId}`;
-        hiddenInput.value = seatId;
-        seatSelectedContainer1.appendChild(hiddenInput);
-      } else {
-        // Remove the hidden input if the seat is deselected
-        const hiddenInput = seatSelectedContainer1.querySelector(`input[value='${seatId}']`);
-        if (hiddenInput) {
-          seatSelectedContainer1.removeChild(hiddenInput);
+                // Update hidden input for selected seats in the return flight
+                const seatSelectedContainer1 = document.getElementById('seatSelected1');
+                if (seat.classList.contains('choose')) {
+                    const hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.name = `selectedSeat_${seatId}`;
+                    hiddenInput.value = seatId;
+                    seatSelectedContainer1.appendChild(hiddenInput);
+                } else {
+                    // Remove the hidden input if the seat is deselected
+                    const hiddenInput = seatSelectedContainer1.querySelector(`input[value='${seatId}']`);
+                    if (hiddenInput) {
+                        seatSelectedContainer1.removeChild(hiddenInput);
+                    }
+                }
+
+                // Update the total fare for the return flight
+                updateTotalFare2();
+            }
+        });
+    });
+
+    function updateTotalFare2() {
+        const seatSelectedContainer1 = document.getElementById('seatSelected1');
+        let totalFareContainer1 = document.querySelector('.total-fare-value span');
+
+        let totalFare = 0;
+        let currentSelectedSeats1 = []; // Array to store currently selected seats for the return flight
+
+        seatSelectedContainer1.innerHTML = ''; // Clear existing content
+        console.log('ok');
+
+        // Add the "Seat & Surcharges:" label
+        let surchargeLabelDiv = document.createElement('div');
+        surchargeLabelDiv.classList.add('surcharges-label');
+        surchargeLabelDiv.textContent = 'Seat & Surcharges (Return):';
+        seatSelectedContainer1.appendChild(surchargeLabelDiv);
+
+        // Loop through all selected seats for the return flight
+        document.querySelectorAll('.seat1.choose').forEach(seat => {
+            const seatId = seat.nextElementSibling.value;
+            const seatName = seat.textContent;
+            let seatPrice = trip(parseFloat(seat.getAttribute('value')));
+            // Add seat to the currentSelectedSeats1 array
+            if (!currentSelectedSeats1.includes(seatId)) {
+                currentSelectedSeats1.push(seatId);
+
+                // Create hidden input for selected seat
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = `selectedSeat1_${currentSelectedSeats1.length}`;
+                hiddenInput.value = seatId;
+                seatSelectedContainer1.appendChild(hiddenInput);
+
+                // Create surcharge value div for the return flight seat
+                const surchargeValueDiv1 = document.createElement('div');
+                surchargeValueDiv1.classList.add('surcharges-value');
+                surchargeValueDiv1.innerHTML = `${seatName} - $<span>${(seatPrice * percentDiscount).toFixed(2)}</span>`;
+                seatSelectedContainer1.appendChild(surchargeValueDiv1);
+
+
+                totalFare += seatPrice; // Add seat price to total fare
+            }
+        });
+
+        // Update the total fare with the base fare and fee for the return flight
+        let fare1 = document.querySelector(".base-fare-value1 span").textContent;
+        let fee1 = document.querySelector("#fee1").value;
+        totalFare = parseFloat(fare1) + parseFloat(fee1) + totalFare;
+
+        // Update the total fare in the UI
+        totalFareContainer1.innerText = totalFare.toFixed(1);
+
+        // Update the seat count
+        document.getElementById('chosenCount1').value = currentSelectedSeats1.length;
+    }
+
+    const exchangeRates = {
+        USD: 1,        // Giá trị USD gốc
+        VND: 24000,    // Tỉ giá USD sang VND
+    };
+
+    // Hàm cập nhật giá trị của ghế dựa trên loại tiền tệ
+    function updateCurrency() {
+        const selectedCurrency = document.getElementById('currency').value; // Lấy loại tiền tệ đã chọn
+        console.log(`Loại tiền tệ đã chọn: ${selectedCurrency}`);
+        // Các phần tử cần chuyển đổi tiền tệ
+        const baseFareElement = document.getElementById('basefare');
+        const feeElement = document.getElementById('fee');
+        const totalFareElement = document.querySelector('.total-fare-value span');
+
+        const baseFare = parseFloat(baseFareElement.value); // Giá trị gốc của base fare (USD)
+        const fee = parseFloat(feeElement.value); // Phí hiện tại
+        console.log(`Giá trị base fare: ${baseFare}, Phí: ${fee}`);
+
+        // Chuyển đổi tiền tệ từ USD sang tiền tệ đã chọn
+        const convertedBaseFare = (baseFare * exchangeRates[selectedCurrency]).toFixed(1);
+        const convertedFee = (fee * exchangeRates[selectedCurrency]).toFixed(1);
+        let totalFare = (baseFare + fee) * exchangeRates[selectedCurrency];
+        console.log(`Base fare sau khi chuyển đổi: ${convertedBaseFare}, Phí sau khi chuyển đổi: ${convertedFee}, Tổng tiền sau khi chuyển đổi: ${totalFare}`);
+
+        function formatVND(value) {
+            return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.'); // Thêm dấu chấm
         }
-      }
+        // Cập nhật hiển thị giao diện cho base fare và fee
+        document.querySelector('.base-fare-value span').innerText = selectedCurrency === 'USD' ? ` ${convertedBaseFare}` : `${formatVND(Math.round(convertedBaseFare))}₫`;
+        document.querySelector('.surcharges-value span').innerText = selectedCurrency === 'USD' ? ` ${convertedFee}` : `${formatVND(Math.round(convertedFee))}₫`;
+        totalFareElement.innerText = selectedCurrency === 'USD' ? ` ${totalFare}` : `${formatVND(totalFare.toFixed(0))}₫`;
 
-      // Update the total fare for the return flight
-      updateTotalFare2();
+        const seatContainer = document.getElementById('seatSelected');
+
+
+        // Lặp qua tất cả các ghế trong container
+        seatContainer.querySelectorAll('.surcharges-value').forEach((surchargeDiv, index) => {
+            // Lấy giá trị ghế và phí từ span
+            const seatName = surchargeDiv.textContent.split('-')[0].trim();
+            const spanElement = surchargeDiv.querySelector('span'); // Lấy phần tử <span>
+            console.log('day la span' + spanElement);
+            console.log(spanElement?.textContent.replace(/[^0-9.,]/g, '') || 0);
+
+            // Làm sạch giá trị giá ghế, loại bỏ dấu chấm và chỉ giữ lại dấu phẩy nếu có
+            let seatPriceStr = spanElement?.textContent.replace(/[^0-9.,]/g, ''); // Loại bỏ ký tự không phải số và dấu phân cách
+            let seatPriceCleaned = seatPriceStr.replace(/\./g, ''); // Loại bỏ dấu chấm (dấu phân cách ngàn)
+            let seatPrice = parseInt(parseFloat(seatPriceCleaned.replace(',', '.')) || 0); // Chuyển thành số, nếu có dấu phẩy chuyển thành dấu chấm
+
+            console.log(`Giá ghế: ${seatPrice}`);
+            console.log(exchangeRates);
+
+            if (!isNaN(seatPrice)) {
+                // Chuyển đổi tiền tệ
+                let convertedSeatPrice;
+
+                if (selectedCurrency === 'USD') {
+                    convertedSeatPrice = seatPrice / exchangeRates.VND; // Từ VND sang USD
+                    console.log(seatPrice);
+                    console.log(exchangeRates);
+                    console.log(convertedSeatPrice);
+
+                    console.log(123);
+
+                } else {
+                    convertedSeatPrice = seatPrice * exchangeRates.VND; // Từ USD sang VND
+                    console.log(seatPrice);
+                    console.log(exchangeRates);
+                    console.log(convertedSeatPrice);
+                    console.log(123);
+
+                }
+
+                console.log(`Chuyển đổi ${seatPrice} từ ${selectedCurrency === 'USD' ? 'VND' : 'USD'} sang ${selectedCurrency === 'USD' ? 'USD' : 'VND'}: ${formatVND(convertedSeatPrice)}`);
+
+                const formattedPrice = selectedCurrency === 'USD'
+                    ? convertedSeatPrice // Hiển thị 2 số thập phân cho USD
+                    : formatVND(Math.round(convertedSeatPrice)); // Định dạng VND với dấu chấm và không có số thập phân
+
+
+                // Làm sạch và cập nhật lại surchargeDiv
+                surchargeDiv.innerHTML = `${seatName} - ${selectedCurrency === 'USD' ? '$' : '₫'}<span>${formattedPrice}</span>`;
+
+                // Cập nhật giá trị của input hidden tương ứng
+                const hiddenInput = seatContainer.querySelectorAll('input[type="hidden"]')[index];
+                if (hiddenInput) {
+                    hiddenInput.value = formattedPrice;
+                }
+                console.log(123);
+                totalFare += convertedSeatPrice;
+
+            } else {
+                console.warn(`Không thể chuyển đổi giá trị tiền tệ tại: ${seatName}`);
+            }
+        });
+
+        totalFareElement.innerText = selectedCurrency === 'USD' ? ` ${totalFare}` : `${formatVND(totalFare.toFixed(0))}₫`;
+
+
+        document.querySelectorAll('.fare-summary .value').forEach(valueDiv => {
+            let fareValue = parseFloat(valueDiv.textContent.replace(/[^0-9.-]/g, '') || 0);
+            console.log(`Giá trị fare: ${fareValue}`);
+
+            if (!isNaN(fareValue)) {
+                // Chuyển đổi giá trị
+                const convertedFare =
+                    selectedCurrency === 'USD'
+                        ? fareValue / exchangeRates.VND
+                        : fareValue * exchangeRates.VND;
+                console.log(`Giá trị fare sau khi chuyển đổi: ${convertedFare}`);
+
+                // Định dạng giá trị
+                const formattedFare =
+                    selectedCurrency === 'USD'
+                        ? convertedFare.toFixed(1) // Hiển thị 2 số thập phân cho USD
+                        : formatVND(Math.round(convertedFare)); // Định dạng VND với dấu chấm và không có số thập phân
+                console.log(`Giá trị fare sau khi chuyển đổi: ${formattedFare}`);
+
+                // Cập nhật nội dung
+                valueDiv.textContent = `${selectedCurrency === 'USD' ? '' : '₫'}${formattedFare}`;
+            }
+        });
     }
-  });
-});
-
-function updateTotalFare2() {
-  const seatSelectedContainer1 = document.getElementById('seatSelected1');
-  let totalFareContainer1 = document.querySelector('.total-fare-value span');
-
-  let totalFare = 0;
-  let currentSelectedSeats1 = []; // Array to store currently selected seats for the return flight
-
-  seatSelectedContainer1.innerHTML = ''; // Clear existing content
-
-  // Add the "Seat & Surcharges:" label
-  let surchargeLabelDiv = document.createElement('div');
-  surchargeLabelDiv.classList.add('surcharges-label');
-  surchargeLabelDiv.textContent = 'Seat & Surcharges (Return):';
-  seatSelectedContainer1.appendChild(surchargeLabelDiv);
-
-  // Loop through all selected seats for the return flight
-  document.querySelectorAll('.seat1.choose').forEach(seat => {
-    const seatId = seat.nextElementSibling.value;
-    const seatName = seat.textContent;
-    let seatPrice = trip(parseFloat(seat.getAttribute('value')));
-    // Add seat to the currentSelectedSeats1 array
-    if (!currentSelectedSeats1.includes(seatId)) {
-      currentSelectedSeats1.push(seatId);
-
-      // Create hidden input for selected seat
-      const hiddenInput = document.createElement('input');
-      hiddenInput.type = 'hidden';
-      hiddenInput.name = `selectedSeat1_${currentSelectedSeats1.length}`;
-      hiddenInput.value = seatId;
-      seatSelectedContainer1.appendChild(hiddenInput);
-
-      // Create surcharge value div for the return flight seat
-      const surchargeValueDiv1 = document.createElement('div');
-      surchargeValueDiv1.classList.add('surcharges-value');
-      surchargeValueDiv1.innerHTML = `${seatName} - $<span>${seatPrice*percentDiscount}</span>`;
-      seatSelectedContainer1.appendChild(surchargeValueDiv1);
-
-
-      totalFare += seatPrice; // Add seat price to total fare
-    }
-  });
-
-  // Update the total fare with the base fare and fee for the return flight
-  let fare1 = document.querySelector(".base-fare-value1 span").textContent;
-  let fee1 = document.querySelector("#fee1").value;
-  totalFare = parseFloat(fare1) + parseFloat(fee1) + totalFare;
-
-  // Update the total fare in the UI
-  totalFareContainer1.innerText = totalFare.toFixed(1);
-
-  // Update the seat count
-  document.getElementById('chosenCount1').value = currentSelectedSeats1.length;
-}
-
-</script>
+    </script>
 {% endblock %}
