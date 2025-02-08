@@ -11,7 +11,7 @@ class PassengerAdmin(admin.ModelAdmin):
     class Media:
         css = {
             'all': ('css/custom_admin.css',)  # Đảm bảo bạn tạo file custom_admin.css trong thư mục static
-        },
+        }
         js = ('js/admin/admin.js',)
 
 class TicketAdmin(admin.ModelAdmin):
@@ -25,7 +25,7 @@ class TicketAdmin(admin.ModelAdmin):
     class Media:
         css = {
             'all': ('css/custom_admin.css',)  # Đảm bảo bạn tạo file custom_admin.css trong thư mục static
-        },
+        }
         js = ('js/admin/admin.js',)
 
 
@@ -37,7 +37,7 @@ class PaymentAdmin(admin.ModelAdmin):
     class Media:
         css = {
             'all': ('css/custom_admin.css',)  # Đảm bảo bạn tạo file custom_admin.css trong thư mục static
-        },
+        }
         js = ('js/admin/admin.js',)
 
 custom_admin_site.register(Payment, PaymentAdmin)

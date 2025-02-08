@@ -12,15 +12,17 @@ from frontend.template import *
 from flights import handler
 from django.core import serializers
 
-
 def payment_view(request):
     if request.user.is_authenticated:
         if request.method == "POST":
             tickets = request.POST.get("tickets")
+            ticketIds = tickets
+            date = None
             if tickets:
                 try:
                     ticket_ids = [int(t) for t in tickets.split(',')]
                     tickets = [Ticket.objects.get(id=ticket_id) for ticket_id in ticket_ids]
+                    date = tickets[0].booking_date.strftime('%Y-%m-%dT%H:%M:%S')
                 except Ticket.DoesNotExist:
                     # Handle the case where a ticket with a given id doesn't exist
                     # For example, you can log the error or return a message
@@ -32,6 +34,10 @@ def payment_view(request):
                 tickets = []
             res = {'tickets': tickets}
             fare = request.POST.get("fare")
+            currency = request.POST.get('currency')
+            print(fare)
+            print(currency)
+
             cardNumber = request.POST.get('cardNumber')
             cardHolderName = request.POST.get('cardHolderName')
             expMonth = int(request.POST.get('expMonth'))
@@ -40,15 +46,14 @@ def payment_view(request):
             # Lấy ngày tháng năm hiện tại.
             current_year = datetime.today().year
             current_month = datetime.today().month
+            if currency == 'VND':
+                # Chuyển fare từ dạng chuỗi tiền tệ thành số nguyên
+                fare_numeric = float(fare.replace('₫', '').replace(',', '').strip())
+                fare = int(fare_numeric)  # Chuyển thành số nguyên
+                print(f"Fare after conversion: {fare}")
+
             try:
                 # Kiểm tra số của thẻ có dưới 12 chữ số hay không. Không thì báo lỗi
-                if len(cardNumber) != 12:
-                    messages.warning(request, 'Card number must be 12 digits')
-                    return render(request, 'payment.html', {'fare': fare, 'tickets': tickets, 'tripType': tripType})
-                    # Kiểm tra xem thời gian hiệu lực của thẻ
-                if expYear < current_year or (expYear == current_year and expMonth < current_month):
-                    messages.warning(request, 'Card expired')
-                    return render(request, 'payment.html', {'fare': fare, 'tickets': tickets, 'tripType': tripType})
                 payment = Payment.objects.create(
                     fare=fare,
                     card_number=cardNumber,
@@ -56,15 +61,18 @@ def payment_view(request):
                     expMonth=expMonth,
                     expYear=expYear,
                     cvv=cvv,
-                    status='CONFIRMED',
+                    status='PENDING',
                 )
                 for ticket in tickets:
-                    ticket.booking_date = datetime.now()
-                    ticket.status = 'CONFIRMED'
-                    ticket.save()
-                    payment_ticket = PaymentTicket.objects.create(payment=payment, ticket=ticket)
-                    payment_ticket.save()
-                payment.save()
+                    if ticket.status == 'PENDING':
+                        ticket.booking_date = datetime.now()
+                        ticket.status = 'CONFIRMED'
+                        ticket.save()
+                        payment_ticket = PaymentTicket.objects.create(payment=payment, ticket=ticket)
+                        payment_ticket.save()
+                if tickets[0].status == 'CONFIRMED':
+                    payment.status = 'CONFIRMED'
+                    payment.save()
                 return render(request, 'payment_process.html', res)
             except Exception as e:
                 return HttpResponse(e)
@@ -108,6 +116,15 @@ def book(request):
             countrycode = request.POST['countryCode']
             mobile = request.POST['mobile']
             email = request.POST['email']
+            currency = request.POST['currency']
+            print(f"Currency: {currency}")
+            discount = request.POST['coupon']
+            discountPercentage = request.POST['discountPercentage']
+            
+            print(f"discount: {discount}")
+            print(f"discount: {discountPercentage}")
+            print(f"discount: {discountPercentage}")
+
             if tripType == '1':
                 seat = request.POST.get('seat')
                 stop = request.POST.get('stop')
@@ -208,7 +225,7 @@ def book(request):
                 messages.warning(request, 'Mobile must be 10 digits')
                 mes = {}
                 if tripType == '1':
-                    mes = {'tripType': '1', 'seat': seat, "fee": FEE, 'people': people, }
+                    mes = {'tripType': '1', 'seat': seat, "fee": FEE, 'people': people,}
                     if stop == 'no':
                         mes.update({
                             'flight1': flight1,
@@ -229,7 +246,7 @@ def book(request):
                             'seats1': Seat.objects.filter(flight=connecting.get('flight0').pk),
                             'stop': 'yes', })
                 if tripType == '2':
-                    mes = {'tripType': '2', 'seat': seat, "fee": FEE, }
+                    mes = {'tripType': '2', 'seat': seat, "fee": FEE,}
                     if stop1 == 'no':
                         mes.update({
                             'flight1': flight1,
@@ -353,8 +370,13 @@ def book(request):
                             tickets.append(
                                 createticket(request.user, passengers, passengerscount, flight3, flight3Date,
                                              seat, coupon, countrycode, email, mobile, s))
-
+            
                 total_fare = sum([t.total_fare for t in tickets])
+                if currency == 'VND':
+                    total_fare *= 24000
+                    fare_formatted = "{:,.0f} ₫".format(total_fare)
+                print(f"Total Fare after conversion: {total_fare}")
+                fare_formatted = int(total_fare)
             except Exception as e:
                 return HttpResponse(e)
             ticket_ids = ''
@@ -362,9 +384,11 @@ def book(request):
                 ticket_ids += str(ticket.pk) + ','
             ticket_ids = ticket_ids.rstrip(',')
             res = {
-                'fare': total_fare,
+                'currency': currency,
+                'fare': fare_formatted,
                 'tickets': ticket_ids,
                 'tripType': tripType,
+                'date' : tickets[0].booking_date.strftime('%Y-%m-%dT%H:%M:%S')
             }
             if tripType == '1':
                 if stop == 'yes':
@@ -384,6 +408,18 @@ def book(request):
     else:
         return HttpResponseRedirect(reverse('login'))
 
+def cancelPayment(request,tickets):
+    ticket_ids = tickets.split(',')
+    tickets = [Ticket.objects.get(id=int(t)) for t in ticket_ids]
+    for ticket in tickets:
+        ticket.status = 'CANCELLED'
+        ticket.save()
+        seats = TicketSeat.objects.filter(ticket=ticket)
+        for s in seats:
+            seat = Seat.objects.get(pk=s.seat.pk)
+            seat.status = 'AVAILABLE'
+            seat.save()
+    return render(request, "index.html", )
 
 def createticket(user, passengers, passengerscount, flight1, flight_1date, flight_1class, coupon, countrycode, email,
                  mobile, seat):

@@ -8,8 +8,11 @@ function flight_duration() {
         element.innerText = time[0] + "h " + time[1] + "m";
     });
 }
-
 function add_traveller() {
+    const exchangeRates = {
+        USD: 1,        // Giá trị USD gốc
+        VND: 24000,    // Tỉ giá USD sang VND
+    };
     let div = document.querySelector('.add-traveller-div');
     let fname = div.querySelector('#fname');
     let lname = div.querySelector('#lname');
@@ -65,20 +68,47 @@ function add_traveller() {
         radio.checked = false;
     });
 
+
     let pcount = document.querySelector("#p-count").value;
     let fare = document.querySelector("#basefare").value;
     let fee = document.querySelector("#fee").value;
+    const currencySelect = document.getElementById('currency');  // Define the variable here
+    const selectedCurrency = currencySelect.value;
+    const exchangeRate = exchangeRates[selectedCurrency];
+    function formatVND(value) {
+        return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.'); // Thêm dấu chấm
+    }
     if (parseInt(pcount) !== 0) {
         let totalSeatValue = 0;
-
+      
         // Duyệt qua tất cả các ghế có giá trị và cộng dồn
         document.querySelectorAll('.seat').forEach(seat => {
             if (seat.classList.contains('choose')) { // Chỉ tính ghế được chọn
-                totalSeatValue += parseFloat(seat.getAttribute('value'));
+                totalSeatValue += parseInt(seat.getAttribute('value'));
             }
         });
-        document.querySelector(".base-fare-value span").innerText = parseInt(fare) * parseInt(pcount);
-        document.querySelector(".total-fare-value span").innerText = parseInt(totalSeatValue) + (parseInt(fare) * parseInt(pcount)) + parseInt(fee);
+        if(selectedCurrency === 'USD') {
+            console.log(fare);
+            console.log(pcount);
+            
+         document.querySelector(".base-fare-value span").innerText = parseInt(fare) * parseInt(pcount) + " $";
+            console.log(parseInt(totalSeatValue));
+            
+            
+         document.querySelector(".total-fare-value span").innerText = parseInt(totalSeatValue) + (parseInt(fare) * parseInt(pcount)) + parseInt(fee) + " $";
+    } else {
+        console.log(pcount);
+        
+        let baseFare = parseInt(fare);
+        let fareInNewCurrency = baseFare * exchangeRate;
+        let baseFee = parseInt(fee);
+        let feeInNewCurrency = baseFee * exchangeRate
+        console.log(exchangeRate);
+        console.log(fare);
+        document.querySelector(".base-fare-value span").innerText =formatVND( fareInNewCurrency * parseInt(pcount)) + "₫";
+        document.querySelector(".total-fare-value span").innerText = formatVND(  parseInt(totalSeatValue) + (parseInt(fareInNewCurrency) * parseInt(pcount)) + parseInt(feeInNewCurrency)) + " ₫";
+
+    }
     }
 }
 
@@ -87,6 +117,12 @@ function del_traveller(btn) {
     let tvl = btn.parentElement.parentElement.parentElement.parentElement;
     let cnt = tvl.querySelector("#p-count");
     cnt.value = parseInt(cnt.value) - 1;
+    const currencySelect = document.getElementById('currency');  // Define the variable here
+    const selectedCurrency = currencySelect.value;
+    const exchangeRate = exchangeRates[selectedCurrency];
+    function formatVND(value) {
+        return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.'); // Thêm dấu chấm
+    }
     tvl.querySelector(".traveller-head h6 span").innerText = cnt.value;
     if (parseInt(cnt.value) <= 0) {
         tvl.querySelector('.no-traveller').style.display = 'block';
@@ -97,8 +133,21 @@ function del_traveller(btn) {
     let fare = document.querySelector("#basefare").value;
     let fee = document.querySelector("#fee").value;
     if (parseInt(pcount) !== 0) {
-        document.querySelector(".base-fare-value span").innerText = parseInt(fare) * parseInt(pcount);
-        document.querySelector(".total-fare-value span").innerText = (parseInt(fare) * parseInt(pcount)) + parseInt(fee);
+        if(selectedCurrency === 'USD') {
+
+        document.querySelector(".base-fare-value span").innerText = parseInt(fare) * parseInt(pcount) + " $";
+        document.querySelector(".total-fare-value span").innerText = (parseInt(fare) * parseInt(pcount)) + parseInt(fee) + " $";
+        } else {
+            let baseFare = parseInt(fare);
+            let fareInNewCurrency = baseFare * exchangeRate;
+            let baseFee = parseInt(fee);
+            let feeInNewCurrency = baseFee * exchangeRate
+            console.log(exchangeRate);
+            console.log(fare);
+            document.querySelector(".base-fare-value span").innerText =formatVND( parseInt(fareInNewCurrency) * parseInt(pcount)) + " ₫";
+            document.querySelector(".total-fare-value span").innerText =formatVND( (parseInt(fareInNewCurrency) * parseInt(pcount)) + parseInt(feeInNewCurrency)) + " ₫";
+      
+        }
     }
 }
 
@@ -109,6 +158,7 @@ function book_submit() {
     let tripType = parseInt(document.getElementById("tripType").value) || 0;
     let seatSelected = parseInt(document.getElementById("chosenCount").value) || 0;
     let seatSelected1 = parseInt(document.getElementById("chosenCount1").value) || 0;
+    
     // Kiểm tra loại chuyến đi (tripType)
     if (tripType === 1) {
         // Loại 1: số ghế phải bằng số người
@@ -149,122 +199,161 @@ function isTodayInRange(startDate, endDate) {
     const today = new Date();
     return today >= new Date(startDate) && today <= new Date(endDate);
 }
-
-function updateTotalFare1() {
-    const totalFareContainer = document.querySelector('.total-fare-value span');
-
-    // Get the total fare from Django context or other variables
-    let totalFare = parseFloat(totalFareContainer.textContent.trim().replace(/[^\d.-]/g, ''));
-
-    // Apply the discount
-    totalFare = totalFare * percentDiscount; // Adjust fare by percentDiscount
-
-    // Update the total fare display with the discounted value
-    totalFareContainer.textContent = `${totalFare.toFixed(1)}`; // Format as per your requirements
+function getCSRFToken() {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.startsWith('csrftoken=')) {
+            return cookie.substring('csrftoken='.length);
+        }
+    }
+    return null;
 }
+
 
 function discount() {
-    const coupons = {'FL928K': 0.3, 'FL239D': 0.4, 'FL138S': 0.2};
-
-    // Get the value of the coupon input field
     const couponInput = document.querySelector('input[name="coupon"]');
     const couponCode = couponInput.value.trim();
-
-    // Check if a coupon is already applied
+    var currency = document.getElementById('currency').value;
+    // Kiểm tra nếu coupon đã được áp dụng
     if (couponApplied) {
-        alert(`A coupon is already applied: "${couponCodeApplied}". Please remove it first to enter another coupon.`);
+        alert(`Một coupon đã được áp dụng: "${couponCodeApplied}". Vui lòng gỡ bỏ nó trước khi nhập coupon khác.`);
         return;
     }
+    function formatVND(value) {
+        return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.'); // Thêm dấu chấm
+    }
 
-    // Check if the coupon code is not empty
+    // Gửi mã coupon đến backend để xác thực
     if (couponCode) {
-        // Special validation for FL138S
-        if (couponCode === 'FL138S') {
-            if (!isTodayInRange('2025-01-01', '2025-03-01')) {
-                alert('Coupon "FL138S" can only be applied between 01/01/2025 and 03/01/2025.');
-                couponInput.value = '';  // Clear the input field so user can try again
-                return;  // Exit early without applying the coupon
+        $.ajax({
+            url: 'http://127.0.0.1:8000/discount/apply-coupon/', // Đường dẫn API
+            type: 'POST',
+            data: {
+                coupon_code: couponCode,
+                total_fare: document.querySelector('.total-fare-value span').textContent.trim().replace(/[^\d.-]/g, '')
+                , currency: currency
+            },
+            success: function (data) {
+                if (data.error) {
+                    alert(data.error);
+                    couponInput.value = '';  // Xóa trường nhập
+                    return;
+                }
+                if (data.currency === 'VND') {
+                    // Cập nhật tổng giá trị sau khi giảm giá
+                    console.log(data.total_fare);
+
+                    document.querySelector('.total-fare-value span').textContent = ` ${formatVND(parseInt(data.total_fare))}₫`;
+                } else {
+                    console.log(data.total_fare);
+
+                    document.querySelector('.total-fare-value span').textContent = ` ${parseInt(data.total_fare)} $`;
+
+                }
+                document.getElementById('couponCodeHidden').value = data.coupon_code;
+                document.getElementById('discountPercentageHidden').value = data.discount;
+
+                // Hiển thị thông tin coupon đã áp dụng
+                const couponHtml = `
+                        <div class="row surcharges" id="appliedCoupon">
+                            <div class="surcharges-label">
+                                Coupon: ${data.coupon_code} | Discount: ${data.discount}%
+                            </div>
+                            <button type="button" class="removeCouponBtn btn btn-danger btn-sm" style="margin-left: 10px;">Gỡ bỏ</button>
+                            <input type="hidden" name="coupon" value="${data.coupon_code}">
+                            <input type="hidden" name="discountPercentage" value="${data.discount}">
+                        </div>
+                    `;
+                const surchargesElement = document.querySelector('.surcharges');
+                if (surchargesElement) {
+                    surchargesElement.insertAdjacentHTML('afterend', couponHtml);
+                }
+                
+                
+
+                // Lưu thông tin coupon đã áp dụng
+                couponApplied = true;
+                couponCodeApplied = data.coupon_code;
+
+                // Vô hiệu hóa trường nhập để ngừng nhập coupon
+                couponInput.disabled = true;
+                document.querySelector('#applyCoupon').disabled = true;
+
+                // Logic gỡ bỏ coupon
+                const removeCouponBtn = document.querySelector('.removeCouponBtn');
+                if (removeCouponBtn) {
+                    removeCouponBtn.addEventListener('click', function () {
+                        // Gỡ bỏ coupon
+                        const couponElement = document.querySelector('#appliedCoupon');
+                        if (couponElement) {
+                            couponElement.remove();
+                        }
+                        couponApplied = false;
+                        couponCodeApplied = '';
+                        couponInput.disabled = false;
+                        document.querySelector('#applyCoupon').disabled = false;
+                        couponInput.value = ''; // Xóa trường nhập
+                        updateTotalFare1(data.discount); // Cập nhật lại tổng giá trị sau khi gỡ bỏ coupon
+                    });
+                }
+            },
+            error: function (xhr, status, error) {
+                // alert('Đã xảy ra lỗi khi áp dụng coupon.');
+                console.error(error);
             }
-        }
-
-        // Check if the coupon code exists in the coupons dictionary
-        if (coupons[couponCode]) {
-            const discount = coupons[couponCode];  // Get the discount value from the coupons dictionary
-            percentDiscount = 1 - discount;
-            // Create a new HTML block for the coupon with a remove button
-            const couponHtml = `
-                <div class="row surcharges" id="appliedCoupon">
-                    <div class="surcharges-label">
-                        Coupon: ${couponCode} | Discount: ${discount * 100}%
-                    </div>
-                    <button type="button" class="removeCouponBtn btn btn-danger btn-sm" style="margin-left: 10px;">Remove</button>
-                    <input type="hidden" name="coupon" value="${couponCode}">
-                </div>
-            `;
-
-            // Insert the new HTML block after the surcharges row
-            const surchargesElement = document.querySelector('.surcharges');
-            if (surchargesElement) {
-                surchargesElement.insertAdjacentHTML('afterend', couponHtml);
-            }
-
-            // Optionally clear the input field after applying the coupon
-            couponInput.value = '';
-
-            // Mark that a coupon has been applied and store the coupon code
-            couponApplied = true;
-            couponCodeApplied = couponCode;
-
-            // Disable the input field and the Apply button to prevent further coupon entry
-            couponInput.disabled = true;
-            document.querySelector('#applyCoupon').disabled = true;
-
-            // Add event listener to the remove button to allow the user to remove the coupon
-            const removeCouponBtn = document.querySelector('.removeCouponBtn');
-            if (removeCouponBtn) {
-                removeCouponBtn.addEventListener('click', function () {
-                    // Remove the coupon HTML block
-                    const couponElement = document.querySelector('#appliedCoupon');
-                    if (couponElement) {
-                        couponElement.remove();
-                    }
-                    percentDiscount = 1 / (1 - discount);
-                    updateTotalFare1();
-                    // Enable the input field and Apply button again for new coupon
-                    couponInput.disabled = false;
-                    document.querySelector('#applyCoupon').disabled = false;
-
-                    // Reset the flag and allow the user to enter a new coupon
-                    couponApplied = false;
-                    couponCodeApplied = '';
-                    couponInput.value = ''; // Clear the input field
-                });
-            }
-            updateTotalFare1();
-        } else {
-            alert('Invalid coupon code.');
-            couponInput.value = ''; // Clear the input field so user can try again
-        }
+        });
     } else {
-        alert('Please enter a valid coupon code.');
+        alert('Vui lòng nhập mã coupon hợp lệ.');
     }
 }
+// Hàm cập nhật tổng tiền sau khi gỡ bỏ coupon
+function updateTotalFare1(discount) {
+    let totalFare = document.querySelector('.total-fare-value span').textContent.trim().replace(/[^\d.-]/g, '');
+    // totalFare = parseInt(totalFare);  // Chuyển sang kiểu số (float)
+    var currency = document.getElementById('currency').value;
+    // Cập nhật lại tổng tiền, tính lại giá trị ban đầu trước khi giảm giá
+    // Để lấy lại giá trị ban đầu trước khi giảm giá, ta cần chia lại tổng số tiền cho phần trăm giảm giá.
+    console.log(totalFare.replace(/[^\d-]/g, ''));
+    // console.log(originalFare);
+    
+    
+    let originalFare = parseInt(totalFare.replace(/[^\d-]/g, '')) / (1 - discount / 100);
+    console.log('1' + totalFare);
+    console.log("2" +originalFare);
+    
+    // Làm tròn giá trị nếu cần
+    // originalFare = Math.round(originalFare);  // Làm tròn giá trị để không còn phần thập phân
+
+    // Cập nhật tổng tiền đầy đủ (không có giảm giá)
+    if(currency === 'USD') {
+    document.querySelector('.total-fare-value span').textContent = `${parseInt(originalFare)} $`; // Cập nhật lại tổng giá trị ban đầu (trước khi giảm giá)
+
+} else  {
+    console.log(originalFare);
+    
+    document.querySelector('.total-fare-value span').textContent = `${formatVND(  (originalFare))} ₫`; // Cập nhật lại tổng giá trị ban đầu (trước khi giảm giá)
+
+}
+}
+
+
 function trip(price) {
     let tripType = parseInt(document.getElementById("tripType").value) || 0;
-    if(tripType === 1) {
+    if (tripType === 1) {
         let stop = (document.getElementById("stop").value);
-        if(stop === 'yes'){
-           return price*2;
+        if (stop === 'yes') {
+            return price * 2;
         }
     }
-    if(tripType === 2) {
+    if (tripType === 2) {
         let stop1 = (document.getElementById("stop1").value);
-         if(stop1 === 'yes'){
-           return price*2;
+        if (stop1 === 'yes') {
+            return price * 2;
         }
-         let stop2 = (document.getElementById("stop2").value);
-         if(stop2 === 'yes'){
-           return price*2;
+        let stop2 = (document.getElementById("stop2").value);
+        if (stop2 === 'yes') {
+            return price * 2;
         }
     }
     return price;
