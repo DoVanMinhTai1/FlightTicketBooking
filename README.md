@@ -61,3 +61,14 @@ A full-stack web application for booking airline tickets. This project was devel
 
 ```bash
 git clone https://github.com/DoVanMinhTai1/Project_Python.git
+```
+2. ** Navigate to the project directory:
+- cd Project_Python
+3. ** Run migrations
+- python manage.py migrate
+4. ** Run the development server:
+- python manage.py runserver
+
+
+## Document
+-- Add after
