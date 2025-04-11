@@ -1,8 +1,8 @@
-# ✈️ Flight Ticket Booking System
+# Flight Ticket Booking System
 
 A full-stack web application for booking airline tickets. This project was developed by a team of four using **Python (Django)** and **SQLite**. The system allows users to search for flights, book tickets, manage reservations, and process payments — with features such as seat selection, invoice printing, and timeout-based booking sessions.
 
-## 📸 Example Screenshot
+## Example Screenshot
 
 <p align="center">
   <img src="screenshot/img.png" width="300" height="200" />
@@ -12,7 +12,7 @@ A full-stack web application for booking airline tickets. This project was devel
 
 ---
 
-## 🚀 Features
+## Features
 
 - User authentication & session management
 - Search for available flights and filter by date, origin, destination
@@ -28,7 +28,7 @@ A full-stack web application for booking airline tickets. This project was devel
 
 ---
 
-## 👨‍💻 My Responsibilities
+## My Responsibilities
 
 - Developed the **backend** using **Django** framework (Python)
 - Managed database models for flights, bookings, and users using **SQLite**
@@ -45,7 +45,7 @@ A full-stack web application for booking airline tickets. This project was devel
 
 ---
 
-## 🧰 Tech Stack
+## Tech Stack
 
 - Python (Django)
 - SQLite
@@ -55,7 +55,7 @@ A full-stack web application for booking airline tickets. This project was devel
 
 ---
 
-## ⚙️ Setup & Run Locally
+## Setup & Run Locally
 
 1. **Clone the repository:**
 
